@@ -10,36 +10,36 @@ const (
 )
 
 //
-// Default logger middleware
+// Create log middleware
 //
-func MdLogger(tag string, level int) Middleware {
-	return NewLogger(tag, level)
+func MdLogger(level int) Middleware {
+	return NewLogger(level)
 }
 
 //
-// Logger print request and response infor
+// Logger print request and response
 //
 type Logger struct {
-	tag   string
 	level int
 }
 
-// Create default logger
-func NewLogger(tag string, level int) *Logger {
-	return &Logger{
-		tag:   tag,
+func NewLogger(level int) *Logger {
+ 	return &Logger{
 		level: level,
 	}
 }
 
-// Print start and end time
+// @impl Middleware
 func (lg *Logger) Handle(c *Context) int {
-	log.Println(lg.tag, c.Req.IP+"-->", c.Req.Method, c.Req.URL.Path)
+	log.Println("[uweb]", c.Req.IP + "-->", c.Req.Method, c.Req.URL.Path)
+	
 	c.Next()
+	
 	if lg.level == LOG_LEVEL_1 {
-		log.Println(lg.tag, c.Req.IP+"<--", c.Res.Status)
+		log.Println("[uweb]", c.Req.IP + "<--", c.Res.Status)
 	} else {
-		log.Println(lg.tag, c.Req.IP+"<--", c.Res.Status, string(c.Res.Body))
+		log.Println("[uweb]", c.Req.IP + "<--", c.Res.Status, string(c.Res.Body))
 	}
+	
 	return NEXT_CONTINUE
 }

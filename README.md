@@ -32,7 +32,7 @@ func main() {
 	app.Use(uweb.MdCompress())
 	
 	// "demo" is log prefix
-	app.Use(uweb.MdLogger("demo", uweb.LOG_LEVEL_1))
+	app.Use(uweb.MdLogger(uweb.LOG_LEVEL_1))
 	
 	// Session require redis server	
 	app.Use(uweb.MdSession("localhost:6379", "", 3600*12))

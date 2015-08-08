@@ -39,6 +39,12 @@ func (res *Response) SetCookie(name, value string) {
 
 // Send status and body
 func (res *Response) End(req *Request) error {
+	// if error, ignore others
+	if res.Err != nil {
+		http.Error(res, res.Err.Error(), res.Status)
+		return nil
+	}
+	
 	// fix status
 	if res.Status == 0 {
 		switch req.Method {
@@ -56,36 +62,29 @@ func (res *Response) End(req *Request) error {
 		}
 	}
 
-	// content-type
-	if ct := res.Header().Get("Content-Type"); len(ct) == 0 {
-		res.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	}
-
-	// err
-	if res.Err != nil {
-		http.Error(res, res.Err.Error(), res.Status)
-		return nil
-	}
-
-	// no content
-	if len(res.Body) == 0 {
+	// fix content-xxx
+	if len(res.Body) > 0 {
+		if ct := res.Header().Get("Content-Type"); len(ct) == 0 {
+			res.Header().Set("Content-Type", http.DetectContentType(res.Body))
+		}
+	} else {
 		res.Status = 204
 		res.Header().Del("Content-Type")
 		res.Header().Del("Content-Length")
 		res.Header().Del("Content-Encoding")
 	}
 
-	// send now
+	// write body
 	res.WriteHeader(res.Status)
 	if _, err := res.Write(res.Body); err != nil {
 		return err
 	}
 
-	// close
+	// release if needed
 	if res.Close != nil {
 		res.Close()
 	}
-
+	
 	// ok
 	return nil
 }

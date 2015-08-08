@@ -8,21 +8,20 @@ import (
 	"sync"
 )
 
-// If body length less than this
-// will not compress
+// if body length less than this, no need to compress
 const (
 	GZIP_THRESHOLD = 150
 )
 
 //
-// Compress middleware, only support gzip currently.
+// Compress middleware, only support gzip.
 //
 func MdCompress() Middleware {
 	return NewGzip()
 }
 
 //
-// Impl http.ResponseWriter
+// @impl(http.ResponseWriter)
 //
 type gzipWriter struct {
 	http.ResponseWriter
@@ -50,17 +49,17 @@ func NewGzip() *Gzip {
 	return g
 }
 
-// Impl Middleware
+// @impl Middleware
 func (g *Gzip) Handle(c *Context) int {
 	// bypass some files
 	if g.bypass(c.Req) {
 		return NEXT_CONTINUE
 	}
 
-	// next to make response data
+	// next to get response data
 	c.Next()
 
-	// err
+	// if error
 	if c.Res.Err != nil {
 		return NEXT_CONTINUE
 	}
@@ -78,14 +77,11 @@ func (g *Gzip) Handle(c *Context) int {
 		return NEXT_CONTINUE
 	}
 
-	// set header
+	// set headers
 	h := c.Res.Header()
 	h.Set("Vary", "Accept-Encoding")
 	h.Set("Content-Encoding", "gzip")
 	h.Del("Content-Length")
-	if ct := h.Get("Content-Type"); len(ct) == 0 {
-		h.Set("Content-Type", "text/plain; charset=utf-8")
-	}
 
 	// write and close
 	rw := c.Res.ResponseWriter
@@ -101,21 +97,27 @@ func (g *Gzip) Handle(c *Context) int {
 	return NEXT_CONTINUE
 }
 
-// by pass some req
+// by pass some requests
 func (g *Gzip) bypass(req *Request) bool {
-	// check encoding
+	// accept encoding?
 	if !strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
 		return true
 	}
 
-	// check method
+	// ignore HEAD
 	if req.Method == "HEAD" {
 		return true
 	}
 
-	// check path
+	// ignore websocket
+	if len(req.Header.Get("Sec-WebSocket-Key")) > 0 {
+		return true
+	}
+
+	// some files need not compress
+	// TODO: compress cannot work with static
 	ext := filepath.Ext(req.URL.Path)
-	if len(ext) > 1 {
+	if len(ext) > 1 && ext[0:1] == "." {
 		switch ext {
 		case ".png", ".gif", ".jpeg", ".jpg", ".ico":
 			return true
@@ -124,6 +126,6 @@ func (g *Gzip) bypass(req *Request) bool {
 		}
 	}
 
-	// may check some other conditions
+	// ok
 	return false
 }
