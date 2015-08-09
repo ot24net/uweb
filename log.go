@@ -5,7 +5,10 @@ import (
 )
 
 const (
+	// not print reponse body
 	LOG_LEVEL_1 = 1
+	
+	// will print reponse body
 	LOG_LEVEL_2 = 2
 )
 
@@ -29,16 +32,20 @@ func NewLogger(level int) *Logger {
 	}
 }
 
+const (
+	uweb_log_tag = "[uweb]"
+)
+
 // @impl Middleware
 func (lg *Logger) Handle(c *Context) int {
-	log.Println("[uweb]", c.Req.IP + "-->", c.Req.Method, c.Req.URL.Path)
+	log.Println(uweb_log_tag, c.Req.IP + "-->", c.Req.Method, c.Req.URL.Path)
 	
 	c.Next()
 	
 	if lg.level == LOG_LEVEL_1 {
-		log.Println("[uweb]", c.Req.IP + "<--", c.Res.Status)
+		log.Println(uweb_log_tag, c.Req.IP + "<--", c.Res.Status)
 	} else {
-		log.Println("[uweb]", c.Req.IP + "<--", c.Res.Status, string(c.Res.Body))
+		log.Println(uweb_log_tag, c.Req.IP + "<--", c.Res.Status, string(c.Res.Body))
 	}
 	
 	return NEXT_CONTINUE

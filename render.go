@@ -18,7 +18,7 @@ type Render interface {
 }
 
 //
-// Render middleware
+// Create render middleware
 //
 func MdRender(dir string) Middleware {
 	defaultTpl.BaseBy(dir)
@@ -64,7 +64,7 @@ func (t *Template) BaseBy(dir string) {
 // Register helper funcs
 func (t *Template) Helper(name string, f interface{}) {
 	if _, ok := t.helpers[name]; ok {
-		panic("dup helper for name")
+		panic("DUP helper")
 	}
 	t.helpers[name] = f
 }
@@ -74,7 +74,7 @@ func (t *Template) Parse(name string) (*template.Template, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
-	// cached
+	// in cache?
 	if tpl, ok := t.cache[name]; ok {
 		return tpl, nil
 	}
@@ -123,14 +123,16 @@ func (r *tplRender) Html(name string, data interface{}) error {
 		return err
 	}
 
-	// set body header
+	// w
 	w := r.c.Res
+	
+	// set body header
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Body = buf.Bytes()
 
 	// status
-	if r.c.Res.Status == 0 {
-		r.c.Res.Status = 200
+	if w.Status == 0 {
+		w.Status = 200
 	}
 
 	// ok
@@ -139,14 +141,16 @@ func (r *tplRender) Html(name string, data interface{}) error {
 
 // Plain text
 func (r *tplRender) Plain(data string) error {
-	// body
+	// w
 	w := r.c.Res
+	
+	// body
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Body = []byte(data)
 
 	// status
-	if r.c.Res.Status == 0 {
-		r.c.Res.Status = 200
+	if w.Status == 0 {
+		w.Status = 200
 	}
 
 	// ok
@@ -155,21 +159,23 @@ func (r *tplRender) Plain(data string) error {
 
 // Render json
 func (r *tplRender) Json(v interface{}) error {
-	// marshal
+	// w
+	w := r.c.Res
+	
+	// set body
 	result, err := json.Marshal(v)
 	if err != nil {
 		return err
 	}
-
-	// header & body
-	w := r.c.Res
-	w.Header().Del("Content-Length")
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Body = result
 
+	// set header & body
+	w.Header().Del("Content-Length")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
 	// status
-	if r.c.Res.Status == 0 {
-		r.c.Res.Status = 200
+	if w.Status == 0 {
+		w.Status = 200
 	}
 
 	// ok

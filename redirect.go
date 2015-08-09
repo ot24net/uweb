@@ -7,7 +7,7 @@ import (
 )
 
 //
-// Redirector middleware
+// Create redirector middleware
 //
 func MdRedirect() Middleware {
 	return new(Redirector)
@@ -33,7 +33,7 @@ type Redirect struct {
 	c *Context
 }
 
-// To
+// Redirect to url
 func (r *Redirect) To(urlStr string) {
 	// req, res
 	req, res := r.c.Req, r.c.Res
@@ -77,7 +77,11 @@ func (r *Redirect) To(urlStr string) {
 	}
 }
 
-// TODO: Back
+// Back to referrer or "/"
 func (r *Redirect) Back() {
-
+	urlStr := r.c.Req.Header.Get("Referrer")
+	if len(urlStr) == 0 {
+		urlStr = "/"
+	}
+	r.To(urlStr)
 }

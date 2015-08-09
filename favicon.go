@@ -5,7 +5,7 @@ import (
 )
 
 //
-// Serve favicon middleware
+// Create Favicon middleware
 //
 func MdFavicon(p string) Middleware {
 	if len(p) == 0 {
@@ -19,14 +19,14 @@ func MdFavicon(p string) Middleware {
 }
 
 //
-// Cache favicon data
+// Cache favicon data.
 // should restart if file changed
 //
 type Favicon struct {
 	icon []byte
 }
 
-// Create favicon instance
+// Create favicon
 func NewFavicon(p string) (*Favicon, error) {
 	icon, err := ioutil.ReadFile(p)
 	if err != nil {

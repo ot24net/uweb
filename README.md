@@ -93,6 +93,6 @@ func EditHandler(c *uweb.Context) {
 ```
 
 ## Design
-There is middleware system, but if want to extent, just change the source code in your local environment.
+There is middleware system, but if want to extend, just change the source code in your local environment.
 
 
