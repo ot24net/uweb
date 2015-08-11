@@ -4,8 +4,11 @@ import (
 	"net/http"
 )
 
-// TODO: add api to configure
-var COOKIE_MAX_AGE = 7 * 24 * 3600
+var (
+	COOKIE_MAX_AGE = 365 * 24 * 3600
+	COOKIE_HTTP_ONLY = false
+	COOKIE_PATH = "/"
+)
 
 //
 // Http response
@@ -30,8 +33,8 @@ func (res *Response) SetCookie(name, value string) {
 	cookie := &http.Cookie{
 		Name:     name,
 		Value:    value,
-		Path:     "/",
-		HttpOnly: false, // make js can read
+		Path:     COOKIE_PATH
+		HttpOnly: COOKIE_HTTP_ONLY
 		MaxAge:   COOKIE_MAX_AGE,
 	}
 	http.SetCookie(res, cookie)

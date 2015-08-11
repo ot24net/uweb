@@ -15,7 +15,7 @@ type Config interface {
 }
 
 //
-// export middleware
+// Create config middleware
 //
 func MdConfig(file string) Middleware {
 	cfg, err := NewIniCfg(file)
@@ -26,7 +26,7 @@ func MdConfig(file string) Middleware {
 }
 
 //
-// IniCfg
+// Ini config
 //
 type IniCfg struct {
 	mu   sync.RWMutex

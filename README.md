@@ -93,6 +93,9 @@ func EditHandler(c *uweb.Context) {
 ```
 
 ## Design
-There is middleware system, but if want to extend, just change the source code in your local environment.
+There is middleware system, but if want to extend, change the source code.
 
+## Performance
+Route middleware is rather fast, especially for long path, as it stores paths in tree. 
+Session middleware depends on redis, and will slow down the benchmark.
 

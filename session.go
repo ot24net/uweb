@@ -11,6 +11,11 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
+var (
+	// cookie id for session
+	SID_COOKIE_KEY = "_sid"
+)
+
 //
 // Redis-based session middleware
 //
@@ -158,10 +163,6 @@ func NewRedisStore(addr, pwd string, expire int) (*RedisStore, error) {
 		pool:   pool,
 	}, nil
 }
-
-const (
-	SID_COOKIE_KEY = "_sid"
-)
 
 // Impl Middleware
 func (rs *RedisStore) Handle(c *Context) int {

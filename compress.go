@@ -9,7 +9,7 @@ import (
 )
 
 // if body length less than this, no need to compress
-const (
+var (
 	GZIP_THRESHOLD = 150
 )
 

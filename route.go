@@ -267,7 +267,7 @@ func (r *Router) Handle(c *Context) int {
 	case "DELETE":
 		t = r.dels
 	default:
-		c.Res.Status = 404
+		c.Res.Status = 501
 		c.Res.Err = errors.New("Router: method not support yet")
 		return NEXT_BREAK
 	}
