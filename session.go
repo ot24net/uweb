@@ -129,7 +129,7 @@ type RedisStore struct {
 	addr   string
 	pwd    string
 	expire int // expire seconds
-	pool   *redis.Pool
+ 	pool   *redis.Pool
 }
 
 // Create redis store

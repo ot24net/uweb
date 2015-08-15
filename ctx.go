@@ -16,6 +16,7 @@ type Context struct {
 	Res *Response
 
 	// sess & flash
+	Cache Cache
 	Sess  *Session
 	Flash *Flash
 
