@@ -33,8 +33,8 @@ func (res *Response) SetCookie(name, value string) {
 	cookie := &http.Cookie{
 		Name:     name,
 		Value:    value,
-		Path:     COOKIE_PATH
-		HttpOnly: COOKIE_HTTP_ONLY
+		Path:     COOKIE_PATH,
+		HttpOnly: COOKIE_HTTP_ONLY,
 		MaxAge:   COOKIE_MAX_AGE,
 	}
 	http.SetCookie(res, cookie)
