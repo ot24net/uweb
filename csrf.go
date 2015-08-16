@@ -59,7 +59,6 @@ func (cf *Csrf) Handle(c *Context) int {
 		// save in session
 		c.Sess.Set(CSRF_SECRET_KEY, secret)
 		c.Sess.Set(CSRF_TOKEN_KEY, token)
-		c.Sess.Save()
 
 		// for angular.js
 		c.Res.SetCookie("XSRF-TOKEN", token)

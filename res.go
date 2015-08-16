@@ -5,9 +5,9 @@ import (
 )
 
 var (
-	COOKIE_MAX_AGE = 365 * 24 * 3600
+	COOKIE_MAX_AGE   = 365 * 24 * 3600
 	COOKIE_HTTP_ONLY = false
-	COOKIE_PATH = "/"
+	COOKIE_PATH      = "/"
 )
 
 //
@@ -47,7 +47,7 @@ func (res *Response) End(req *Request) error {
 		http.Error(res, res.Err.Error(), res.Status)
 		return nil
 	}
-	
+
 	// fix status
 	if res.Status == 0 {
 		switch req.Method {
@@ -87,7 +87,7 @@ func (res *Response) End(req *Request) error {
 	if res.Close != nil {
 		res.Close()
 	}
-	
+
 	// ok
 	return nil
 }

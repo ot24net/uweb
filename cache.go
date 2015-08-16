@@ -1,10 +1,10 @@
 package uweb
 
 import (
-	"time"
 	"errors"
 	"strings"
-	
+	"time"
+
 	"github.com/garyburd/redigo/redis"
 )
 
@@ -16,7 +16,7 @@ type Cache interface {
 	Get(key string) ([]byte, error)
 }
 
-// 
+//
 // Cache middleware
 //
 func MdCache(driver, dsn string) Middleware {
@@ -44,11 +44,11 @@ func NewRedisCache(dsn string) (*RedisCache, error) {
 		return nil, errors.New("Cache: invalid dsn")
 	}
 	pwd, addr := arr[0], arr[1]
-	
+
 	// pool
 	pool := &redis.Pool{
 		MaxIdle:     6,
- 		IdleTimeout: 240 * time.Second,
+		IdleTimeout: 240 * time.Second,
 		Dial: func() (redis.Conn, error) {
 			c, err := redis.Dial("tcp", addr)
 			if err != nil {
@@ -67,10 +67,10 @@ func NewRedisCache(dsn string) (*RedisCache, error) {
 			return err
 		},
 	}
-	
+
 	// cache
 	return &RedisCache{
-		pool:   pool,
+		pool: pool,
 	}, nil
 }
 
@@ -85,12 +85,12 @@ func (r *RedisCache) Set(key string, data []byte, expire int) error {
 	// c
 	c := r.pool.Get()
 	defer c.Close()
-	
+
 	// set
 	if _, err := c.Do("SETEX", key, expire, data); err != nil {
 		return err
 	}
-	
+
 	// ok
 	return nil
 }
@@ -100,17 +100,16 @@ func (r *RedisCache) Get(key string) ([]byte, error) {
 	// c
 	c := r.pool.Get()
 	defer c.Close()
-	
+
 	// get
 	value, err := c.Do("GET", key)
 	if err != nil {
 		return nil, err
 	}
-	
-	// should not return nil data if not err	
+
+	// should not return nil data if not err
 	if value == nil {
 		return make([]byte, 0), nil
 	}
 	return value.([]byte), nil
 }
-

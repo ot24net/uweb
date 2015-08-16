@@ -125,7 +125,7 @@ func (r *tplRender) Html(name string, data interface{}) error {
 
 	// w
 	w := r.c.Res
-	
+
 	// set body header
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Body = buf.Bytes()
@@ -143,7 +143,7 @@ func (r *tplRender) Html(name string, data interface{}) error {
 func (r *tplRender) Plain(data string) error {
 	// w
 	w := r.c.Res
-	
+
 	// body
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Body = []byte(data)
@@ -161,7 +161,7 @@ func (r *tplRender) Plain(data string) error {
 func (r *tplRender) Json(v interface{}) error {
 	// w
 	w := r.c.Res
-	
+
 	// set body
 	result, err := json.Marshal(v)
 	if err != nil {

@@ -7,7 +7,7 @@ import (
 const (
 	// not print reponse body
 	LOG_LEVEL_1 = 1
-	
+
 	// will print reponse body
 	LOG_LEVEL_2 = 2
 )
@@ -27,7 +27,7 @@ type Logger struct {
 }
 
 func NewLogger(level int) *Logger {
- 	return &Logger{
+	return &Logger{
 		level: level,
 	}
 }
@@ -38,15 +38,15 @@ const (
 
 // @impl Middleware
 func (lg *Logger) Handle(c *Context) int {
-	log.Println(uweb_log_tag, c.Req.IP + "-->", c.Req.Method, c.Req.URL.Path)
-	
+	log.Println(uweb_log_tag, c.Req.IP+"-->", c.Req.Method, c.Req.URL.Path)
+
 	c.Next()
-	
+
 	if lg.level == LOG_LEVEL_1 {
-		log.Println(uweb_log_tag, c.Req.IP + "<--", c.Res.Status)
+		log.Println(uweb_log_tag, c.Req.IP+"<--", c.Res.Status)
 	} else {
-		log.Println(uweb_log_tag, c.Req.IP + "<--", c.Res.Status, string(c.Res.Body))
+		log.Println(uweb_log_tag, c.Req.IP+"<--", c.Res.Status, string(c.Res.Body))
 	}
-	
+
 	return NEXT_CONTINUE
 }

@@ -1,7 +1,7 @@
 package uweb
 
 //
-// Create flash middleware, 
+// Create flash middleware,
 // which depends on session middleware
 //
 func MdFlash() Middleware {
@@ -28,7 +28,7 @@ type Flash struct {
 	sess *Session
 }
 
-// add flash prefix 
+// add flash prefix
 func (f *Flash) key(k string) string {
 	return "_flash_" + k
 }
@@ -37,7 +37,6 @@ func (f *Flash) key(k string) string {
 func (f *Flash) Put(k, v string) {
 	k = f.key(k)
 	f.sess.Set(k, v)
-	f.sess.Save()
 }
 
 // Pop flash msg and release it.
@@ -46,7 +45,6 @@ func (f *Flash) Pop(k string) string {
 	v := f.sess.Get(k)
 	if len(v) != 0 {
 		f.sess.Del(k)
-		f.sess.Save()
 	}
 	return v
 }
