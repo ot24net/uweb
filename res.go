@@ -1,9 +1,11 @@
 package uweb
 
 import (
+	"log"
 	"net/http"
 )
 
+// Cookies configure value
 var (
 	COOKIE_MAX_AGE   = 365 * 24 * 3600
 	COOKIE_HTTP_ONLY = false
@@ -44,7 +46,12 @@ func (res *Response) SetCookie(name, value string) {
 func (res *Response) End(req *Request) error {
 	// if error, ignore others
 	if res.Err != nil {
-		http.Error(res, res.Err.Error(), res.Status)
+		if DEBUG {
+			http.Error(res, res.Err.Error(), res.Status)
+		} else {
+			log.Println("[uweb] ERROR", res.Err)
+			http.Error(res, "some error happens", res.Status)
+		}
 		return nil
 	}
 

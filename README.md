@@ -31,11 +31,14 @@ func main() {
 	// Compress use gzip, currently cannot work with MdSatic	
 	app.Use(uweb.MdCompress())
 	
-	// "demo" is log prefix
-	app.Use(uweb.MdLogger(uweb.LOG_LEVEL_1))
+	// log
+	app.Use(uweb.MdLogger(uweb.LOG_LEVEL_2))
 	
-	// Session require redis server	
-	app.Use(uweb.MdSession("localhost:6379", "", 3600*12))
+	// Cache use redis
+	app.Use(uweb.MdCache("redis", "password@127.0.0.1:6379"))
+	
+	// Session depends on cache
+	app.Use(uweb.MdSession(3600*12))
 	
 	// Flash depends on session
 	app.Use(uweb.MdFlash())

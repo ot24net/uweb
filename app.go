@@ -6,6 +6,16 @@ import (
 	"sync"
 )
 
+const (
+	// uweb version
+	VERSION = "0.9.1"
+)
+
+var (
+	// debug mode
+	DEBUG = false
+)
+
 //
 // Web application
 // store global objects, such as middleware
@@ -36,7 +46,9 @@ func (a *Application) Use(m Middleware) {
 
 // Listen and start serve
 func (a *Application) Listen(addr string) error {
-	log.Println("App Listen:", addr)
+	if DEBUG {
+		log.Println("[uweb] listen:", addr)
+	}
 	return http.ListenAndServe(addr, a)
 }
 
