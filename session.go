@@ -51,10 +51,8 @@ func (m *SessMan) Handle(c *Context) int {
 	// session
 	s := NewSession(sid)
 	if newSess {
-		println("SetCookie")
 		c.Res.SetCookie(SID_COOKIE_KEY, s.Id())
 	} else {
-		println("restore")
 		if err := s.restore(c.Cache); err != nil {
 			c.Res.Status = 500
 			c.Res.Err = err
@@ -67,7 +65,6 @@ func (m *SessMan) Handle(c *Context) int {
 	c.Next()
 
 	// save session
-	println("save")
 	if err := s.save(c.Cache, m.expire); err != nil {
 		c.Res.Status = 500
 		c.Res.Err = err

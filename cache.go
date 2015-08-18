@@ -4,8 +4,10 @@ import (
 	"errors"
 	"strings"
 	"time"
+	"log"
 
-	"github.com/garyburd/redigo/redis"
+	"github.com/bradfitz/gomemcache/memcache"	
+	//"github.com/garyburd/redigo/redis"
 )
 
 //
@@ -20,16 +22,64 @@ type Cache interface {
 // Cache middleware
 //
 func MdCache(driver, dsn string) Middleware {
-	if driver != "redis" {
-		panic("cache: only support redis")
+	switch driver {
+	case "memcache":
+		r, err := NewMemCache(dsn)
+		if err != nil {
+			panic(err)
+		}
+		return r
+	/*
+	case "redis":
+		r, err := NewRedisCache(dsn)
+		if err != nil {
+			panic(err)
+		}
+		return r
+	*/
 	}
-	r, err := NewRedisCache(dsn)
-	if err != nil {
-		panic(err)
-	}
-	return r
+	panic("unknow driver")
+	return nil
 }
 
+//
+// MemCache
+//
+type MemCache struct {
+	mc *memcache.Client
+}
+
+func NewMemCache(dsn string) (*MemCache, error) {
+	return &MemCache{
+		mc: memcache.New(dsn),
+	}, nil
+}
+
+// @impl Middleware
+func (m *MemCache) Handle(c *Context) int {
+	c.Cache = m
+	return NEXT_CONTINUE
+}
+
+// @impl Cache.Set
+func (m *MemCache) Set(key string, data []byte, expire int) error {
+	log.Println("MemCache: Set", key, expire)
+	return m.mc.Set(&memcache.Item{Key: key, Value: data, Expiration: int32(expire)})
+}
+
+// @impl Cache.Get
+func (m *MemCache) Get(key string) ([]byte, error) {
+	log.Println("MemCache: Get", key)
+	
+	item, err := m.mc.Get(key)
+	if err != nil {
+		return nil, err
+	}
+	return item.Value, nil
+}
+
+/*
+ 
 //
 // RedisCache
 //
@@ -113,3 +163,5 @@ func (r *RedisCache) Get(key string) ([]byte, error) {
 	}
 	return value.([]byte), nil
 }
+ 
+*/
