@@ -31,6 +31,16 @@ func Post(p string, h HttpHandler) {
 	defaultRouter.Post(p, h)
 }
 
+// Put handle
+func Put(p string, h HttpHandler) {
+	defaultRouter.Put(p, h)
+}
+
+// Del handle
+func Del(p string, h HttpHandler) {
+	defaultRouter.Del(p, h)
+}
+
 //
 // Handler is handler for http request
 //
