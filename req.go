@@ -1,9 +1,39 @@
 package uweb
 
 import (
-	"net/http"
 	"strings"
+	"strconv"
+	"log"
+	"net/http"
 )
+
+//
+// Params
+//
+type Params map[string]string
+
+// Convert to int value, if fail return 0
+func (p Params) Int(key string) int {
+	s, ok := p[key]
+	if !ok {
+		return 0
+	}
+	v, err := strconv.Atoi(s)
+	if err != nil {
+		log.Println("Params.Int err:", err)
+		return 0
+	}
+	return v
+}
+
+// Get string value, if fail return ""
+func (p Params) Str(key string) string {
+	s, ok := p[key]
+	if !ok {
+		return ""
+	}
+	return s
+}
 
 //
 // Wrap http request
@@ -16,7 +46,7 @@ type Request struct {
 	IP string
 
 	// url pattern params, Router middleware will set it
-	Params map[string]string
+	Params Params
 }
 
 // Create request

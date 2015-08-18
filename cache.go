@@ -1,11 +1,11 @@
 package uweb
 
 import (
-	"errors"
-	"strings"
-	"time"
-
 	"github.com/bradfitz/gomemcache/memcache"
+	
+	//"time"
+	//"errors"
+	//"strings"
 	//"github.com/garyburd/redigo/redis"
 )
 
