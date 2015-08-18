@@ -4,9 +4,8 @@ import (
 	"errors"
 	"strings"
 	"time"
-	"log"
 
-	"github.com/bradfitz/gomemcache/memcache"	
+	"github.com/bradfitz/gomemcache/memcache"
 	//"github.com/garyburd/redigo/redis"
 )
 
@@ -29,14 +28,14 @@ func MdCache(driver, dsn string) Middleware {
 			panic(err)
 		}
 		return r
-	/*
-	case "redis":
-		r, err := NewRedisCache(dsn)
-		if err != nil {
-			panic(err)
-		}
-		return r
-	*/
+		/*
+			case "redis":
+				r, err := NewRedisCache(dsn)
+				if err != nil {
+					panic(err)
+				}
+				return r
+		*/
 	}
 	panic("unknow driver")
 	return nil
@@ -63,14 +62,11 @@ func (m *MemCache) Handle(c *Context) int {
 
 // @impl Cache.Set
 func (m *MemCache) Set(key string, data []byte, expire int) error {
-	log.Println("MemCache: Set", key, expire)
 	return m.mc.Set(&memcache.Item{Key: key, Value: data, Expiration: int32(expire)})
 }
 
 // @impl Cache.Get
 func (m *MemCache) Get(key string) ([]byte, error) {
-	log.Println("MemCache: Get", key)
-	
 	item, err := m.mc.Get(key)
 	if err != nil {
 		return nil, err
@@ -79,7 +75,7 @@ func (m *MemCache) Get(key string) ([]byte, error) {
 }
 
 /*
- 
+
 //
 // RedisCache
 //
@@ -163,5 +159,5 @@ func (r *RedisCache) Get(key string) ([]byte, error) {
 	}
 	return value.([]byte), nil
 }
- 
+
 */
