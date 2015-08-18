@@ -12,7 +12,7 @@ package main
 
 import (
 	"github.com/ot24net/uweb"
-	_ "ctrls/account"
+	_ "ctrls/auth"
 )
 
 func main() {
@@ -61,9 +61,9 @@ func main() {
 }
 
 //
-// src/ctrls/account/login.go 
+// src/ctrls/auth/login.go 
 //
-package account
+package auth
 
 import (
 	   "github.com/ot24net/uweb"
@@ -96,5 +96,5 @@ There is middleware system, but if want to extend, change the source code.
 
 ## Performance
 Route middleware is rather fast, especially for long path, as it stores paths in tree. 
-Session middleware depends on redis, and will slow down the benchmark.
+Session middleware depends on cache, which will slow down the benchmark.
 
