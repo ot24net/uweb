@@ -12,7 +12,7 @@ package main
 
 import (
 	"github.com/ot24net/uweb"
-	. "ctrls/account"
+	_ "ctrls/account"
 )
 
 func main() {
@@ -34,8 +34,8 @@ func main() {
 	// log
 	app.Use(uweb.MdLogger(uweb.LOG_LEVEL_2))
 	
-	// Cache use redis
-	app.Use(uweb.MdCache("redis", "password@127.0.0.1:6379"))
+	// Cache use memcache
+	app.Use(uweb.MdCache("memcache", "127.0.0.1:11211"))
 	
 	// Session depends on cache
 	app.Use(uweb.MdSession(3600*12))
@@ -72,25 +72,21 @@ import (
 
 func init() {
 	 // simple get
-	 uweb.Get("/account/login", LoginHandler)
+	 uweb.Get("/account/login", func(c *uweb.Context) {
+	 	 data := map[string]string {
+	 	 	  "key": "value"
+		 }		  	  
+	 	 c.Render.Html("account/login.html", data)
+	 })	
 	 
 	 // not support regexp match
-	 uweb.Put("/account/:user_id", EditHandler)
-}
-
-func LoginHandler(c *uweb.Context) {
-	 data := map[string]string {
-	 	  "key": "value"
-	 }		  
-	 c.Render.Html("account/login.html", data)
-}
-
-func EditHandler(c *uweb.Context) {
-	 userId := c.Req.Params["user_id"]
-	 println(userId)
-	 account.Noop(userId)
-	 c.Res.Status = 201
-	 c.Render.Plain("success")
+	 uweb.Put("/account/:user_id", func (c *uweb.Context) {
+	     userId := c.Req.Params["user_id"]
+	 	 println(userId)
+	 	 account.Noop(userId)
+	 	 c.Res.Status = 201
+	 	 c.Render.Plain("success")
+     })
 }
 
 ```
