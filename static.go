@@ -1,10 +1,10 @@
 package uweb
 
 import (
+	"mime"
 	"net/http"
 	"path/filepath"
 	"strings"
-	"mime"
 )
 
 //
@@ -14,7 +14,7 @@ import (
 func init() {
 	// borrow from beego, see:
 	// https://github.com/astaxie/beego/blob/master/mime.go
-    custMimes := map[string]string{
+	custMimes := map[string]string{
 		".3dm":         "x-world/x-3dmf",
 		".3dmf":        "x-world/x-3dmf",
 		".7z":          "application/x-7z-compressed",

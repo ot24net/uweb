@@ -13,7 +13,7 @@ const (
 
 var (
 	// debug mode
-	DEBUG = false
+	DEBUG = true
 )
 
 //
