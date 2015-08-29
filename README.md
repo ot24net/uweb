@@ -97,4 +97,3 @@ There is middleware system, but if want to extend, change the source code.
 ## Performance
 Route middleware is rather fast, especially for long path, as it stores paths in tree. 
 Session middleware depends on cache, which will slow down the benchmark.
-
