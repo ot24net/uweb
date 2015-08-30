@@ -53,10 +53,7 @@ func main() {
 	app.Use(uweb.MdRender("../../pub/html"))
 	
 	// Cors
-	app.Use(uweb.MdCors(map[string]string{
-		origin: "http://localhost",		
-		maxAge: "3600",
-	}))
+	app.Use(uweb.MdCors(uweb.DefaultCors))
 	
 	// Router only support GET, POST, PUT, DELETE
 	// if you want more, change route.go

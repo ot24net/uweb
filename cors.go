@@ -21,6 +21,14 @@ func MdCors(opts map[string]string) Middleware {
 }
 
 //
+// Default CORS
+// 
+var DefaultCors = map[string]string {
+	"origin": "*",
+	"allowMethods": "GET,HEAD,PUT,POST,DELETE",
+}
+
+//
 // Cors handler
 //
 type Cors struct {
