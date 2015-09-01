@@ -52,6 +52,9 @@ func main() {
 	// Html render
 	app.Use(uweb.MdRender("../../pub/html"))
 	
+	// Cors
+	app.Use(uweb.MdCors(uweb.DefaultCors))
+	
 	// Router only support GET, POST, PUT, DELETE
 	// if you want more, change route.go
 	app.Use(uweb.MdRouter())
