@@ -598,7 +598,7 @@ func (s *Static) Handle(c *Context) int {
 		if strings.Contains(p, "..") {
 			c.Res.Status = 400
 			c.Res.Err = errors.New("Static: forbidden path")
-			return NEXT_ABORT
+			return NEXT_BREAK
 		}
 		file := filepath.Join(s.dir, p[len(s.prefix):])
 		http.ServeFile(c.Res, c.Req.Request, file)
