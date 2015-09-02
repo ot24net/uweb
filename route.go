@@ -15,30 +15,40 @@ func MdRouter() Middleware {
 }
 
 //
-// Default router, for convienent
+// Default router
 //
 var (
 	defaultRouter = NewRouter()
 )
 
-// Get handle
+// GET
 func Get(p string, h HttpHandler) {
 	defaultRouter.Get(p, h)
 }
 
-// Post handle
+// POST
 func Post(p string, h HttpHandler) {
 	defaultRouter.Post(p, h)
 }
 
-// Put handle
+// PUT
 func Put(p string, h HttpHandler) {
 	defaultRouter.Put(p, h)
 }
 
-// Del handle
+// DELETE
 func Del(p string, h HttpHandler) {
 	defaultRouter.Del(p, h)
+}
+
+// OPTIONS
+func Opts(p string, h HttpHandler) {
+	defaultRouter.Opts(p, h)
+}
+
+// HEAD
+func Head(p string, h HttpHandler) {
+	defaultRouter.Head(p, h)
 }
 
 //
@@ -251,6 +261,8 @@ type Router struct {
 	puts  *RTree
 	posts *RTree
 	dels  *RTree
+	opts  *RTree
+	heads *RTree
 }
 
 // Create default router
@@ -260,14 +272,15 @@ func NewRouter() *Router {
 		puts:  NewRTree(),
 		posts: NewRTree(),
 		dels:  NewRTree(),
+		opts:  NewRTree(),
+		heads:  NewRTree(),
 	}
 }
 
-// Middleware impl
-func (r *Router) Handle(c *Context) int {
-	// get tree by method
+// get route tree
+func (r *Router) treeByMethod(method string) *RTree {
 	var t *RTree
-	switch c.Req.Method {
+	switch method {
 	case "GET":
 		t = r.gets
 	case "POST":
@@ -276,7 +289,19 @@ func (r *Router) Handle(c *Context) int {
 		t = r.puts
 	case "DELETE":
 		t = r.dels
-	default:
+	case "OPTIONS":
+		t = r.opts
+	case "HEAD":
+		t = r.heads
+	}	
+	return t
+}
+
+// Middleware impl
+func (r *Router) Handle(c *Context) int {
+	// t
+	t := r.treeByMethod(c.Req.Method)
+	if t == nil {
 		c.Res.Status = 501
 		c.Res.Err = errors.New("Router: method not support yet")
 		return NEXT_BREAK
@@ -298,18 +323,9 @@ func (r *Router) Handle(c *Context) int {
 
 // add handler to method trees
 func (r *Router) addHandler(method, p string, h HttpHandler) {
-	// method
-	var t *RTree
-	switch method {
-	case "GET":
-		t = r.gets
-	case "POST":
-		t = r.posts
-	case "PUT":
-		t = r.puts
-	case "DELETE":
-		t = r.dels
-	default:
+	// t
+	t := r.treeByMethod(method)
+	if t == nil {
 		panic("Router: method not support yet")
 	}
 
@@ -319,22 +335,26 @@ func (r *Router) addHandler(method, p string, h HttpHandler) {
 	}
 }
 
-// Get
 func (r *Router) Get(p string, h HttpHandler) {
 	r.addHandler("GET", p, h)
 }
 
-// Post
 func (r *Router) Post(p string, h HttpHandler) {
 	r.addHandler("POST", p, h)
 }
 
-// Put
 func (r *Router) Put(p string, h HttpHandler) {
 	r.addHandler("PUT", p, h)
 }
 
-// Delete
 func (r *Router) Del(p string, h HttpHandler) {
 	r.addHandler("DELETE", p, h)
+}
+
+func (r *Router) Opts(p string, h HttpHandler) {
+	r.addHandler("OPTIONS", p, h)
+}
+
+func (r *Router) Head(p string, h HttpHandler) {
+	r.addHandler("HEAD", p, h)
 }

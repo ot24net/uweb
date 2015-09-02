@@ -55,8 +55,7 @@ func main() {
 	// Cors
 	app.Use(uweb.MdCors(uweb.DefaultCors))
 	
-	// Router only support GET, POST, PUT, DELETE
-	// if you want more, change route.go
+	// if you want more method, change route.go
 	app.Use(uweb.MdRouter())
 	
 	// listen address
