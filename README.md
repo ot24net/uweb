@@ -12,7 +12,9 @@ package main
 
 import (
 	"github.com/ot24net/uweb"
+	
 	_ "ctrls/auth"
+    _ "models/account"
 )
 
 func main() {

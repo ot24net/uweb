@@ -273,7 +273,7 @@ func NewRouter() *Router {
 		posts: NewRTree(),
 		dels:  NewRTree(),
 		opts:  NewRTree(),
-		heads:  NewRTree(),
+		heads: NewRTree(),
 	}
 }
 
@@ -293,7 +293,7 @@ func (r *Router) treeByMethod(method string) *RTree {
 		t = r.opts
 	case "HEAD":
 		t = r.heads
-	}	
+	}
 	return t
 }
 
