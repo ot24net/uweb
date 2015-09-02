@@ -3,6 +3,7 @@ package uweb
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"path/filepath"
 	"sync"
@@ -12,8 +13,14 @@ import (
 // Render interface
 //
 type Render interface {
+	// plain text
 	Plain(data string) error
-	Json(data interface{}) error
+
+	// json or jsonp if padding not empty, about jsonp see:
+	// http://www.cnblogs.com/dowinning/archive/2012/04/19/json-jsonp-jquery.html
+	Json(data interface{}, padding string) error
+
+	// html response
 	Html(file string, data interface{}) error
 }
 
@@ -64,7 +71,7 @@ func (t *Template) BaseBy(dir string) {
 // Register helper funcs
 func (t *Template) Helper(name string, f interface{}) {
 	if _, ok := t.helpers[name]; ok {
-		panic("DUP helper")
+		panic("Template: DUP helper")
 	}
 	t.helpers[name] = f
 }
@@ -117,7 +124,7 @@ func (r *tplRender) Html(name string, data interface{}) error {
 		return err
 	}
 
-	// execute to buf
+	// buf
 	buf := new(bytes.Buffer)
 	if err := tpl.Execute(buf, data); err != nil {
 		return err
@@ -128,6 +135,8 @@ func (r *tplRender) Html(name string, data interface{}) error {
 
 	// set body header
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	//  body
 	w.Body = buf.Bytes()
 
 	// status
@@ -158,18 +167,21 @@ func (r *tplRender) Plain(data string) error {
 }
 
 // Render json
-func (r *tplRender) Json(v interface{}) error {
+func (r *tplRender) Json(v interface{}, padding string) error {
 	// w
 	w := r.c.Res
 
-	// set body
+	// body
 	result, err := json.Marshal(v)
 	if err != nil {
 		return err
 	}
+	if len(padding) > 0 {
+		result = []byte(fmt.Sprintf("%s(%s);", padding, string(result)))
+	}
 	w.Body = result
 
-	// set header & body
+	// header
 	w.Header().Del("Content-Length")
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 

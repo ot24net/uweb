@@ -1,9 +1,5 @@
 package uweb
 
-import (
-	"sync"
-)
-
 //
 // Path Ignore middleware
 //
@@ -19,7 +15,6 @@ func MdIgnore(ps []string) Middleware {
 // Ignore some path
 //
 type Ignore struct {
-	mu    sync.Mutex
 	paths map[string]bool
 }
 
@@ -32,20 +27,15 @@ func NewIgnore() *Ignore {
 
 // Add one path
 func (ig *Ignore) Path(p string) {
-	ig.mu.Lock()
 	ig.paths[p] = true
-	ig.mu.Unlock()
 }
 
 // Check request path, if ignored, return 200 ok and ignored text info
 // @impl Middleware
 func (ig *Ignore) Handle(c *Context) int {
-	ig.mu.Lock()
-	_, ok := ig.paths[c.Req.URL.Path]
-	ig.mu.Unlock()
-	if ok {
+	if _, ok := ig.paths[c.Req.URL.Path]; ok {
 		c.Res.Status = 200
-		c.Res.Body = []byte("ignored")
+		c.Res.Body = []byte("Ignore: path is ignored")
 		return NEXT_BREAK
 	}
 	return NEXT_CONTINUE

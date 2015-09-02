@@ -8,7 +8,7 @@ package uweb
 //  - credentials: Access-Control-Allow-Credentials
 //  - maxAge: Access-Control-Max-Age, in seconds
 //  - allowMethods: Access-Control-Allow-Methods, default is GET,HEAD,PUT,POST,DELETE
-//  - allowHeaders: Access-Control-Allow-Headers 
+//  - allowHeaders: Access-Control-Allow-Headers
 //  - exposeHeaders: Access-Control-Expose-Headers
 //
 func MdCors(opts map[string]string) Middleware {
@@ -21,10 +21,10 @@ func MdCors(opts map[string]string) Middleware {
 }
 
 //
-// Default CORS
-// 
-var DefaultCors = map[string]string {
-	"origin": "*",
+// Default CORS options
+//
+var DefaultCors = map[string]string{
+	"origin":       "*",
 	"allowMethods": "GET,HEAD,PUT,POST,DELETE",
 }
 
@@ -32,6 +32,10 @@ var DefaultCors = map[string]string {
 // Cors handler
 //
 type Cors struct {
+	// It's fine if multiple goroutines read from a map simultaneously.
+	// But if one goroutine reads from a map while another writes to a map, or if
+	// two goroutines write to a map, then the program must synchronize those
+	// goroutines in some way.
 	opts map[string]string
 }
 
@@ -53,13 +57,13 @@ func (co *Cors) Handle(c *Context) int {
 
 	// h
 	h := c.Res.Header()
-	
+
 	// origin
 	origin, _ := co.opts["origin"]
 	if len(origin) == 0 {
 		origin = reqOrigin
 	}
-	
+
 	// preflight request
 	if c.Req.Method == "OPTIONS" {
 		// if there is no Access-Control-Request-Method header or if parsing failed,
@@ -71,10 +75,10 @@ func (co *Cors) Handle(c *Context) int {
 
 		// origin
 		h.Set("Access-Control-Allow-Origin", origin)
-		
+
 		// credentials
 		if credentials, ok := co.opts["credentials"]; ok && len(credentials) > 0 {
-			h.Set("Access-Control-Allow-Credentials", credentials);
+			h.Set("Access-Control-Allow-Credentials", credentials)
 		}
 
 		// maxAge
@@ -94,24 +98,24 @@ func (co *Cors) Handle(c *Context) int {
 			h.Set("Access-Control-Allow-Headers", allowHeaders)
 		} else {
 			h.Set("Access-Control-Allow-Headers", c.Req.Header.Get("Access-Control-Request-Headers"))
-		}			
-		
-	// other request
+		}
+
+		// other request
 	} else {
 		// origin
 		h.Set("Access-Control-Allow-Origin", origin)
-		
+
 		// credentials
 		if credentials, ok := co.opts["credentials"]; ok && len(credentials) > 0 {
 			h.Set("Access-Control-Allow-Credentials", credentials)
 		}
-		
+
 		// exposeHeaders
 		if exposeHeaders, ok := co.opts["exposeHeaders"]; ok && len(exposeHeaders) > 0 {
 			h.Set("Access-Control-Expose-Headers", exposeHeaders)
 		}
 	}
-	
+
 	// ok
 	return NEXT_CONTINUE
 }

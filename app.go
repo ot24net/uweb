@@ -6,13 +6,13 @@ import (
 	"sync"
 )
 
+// static const values
 const (
-	// uweb version
 	VERSION = "0.9.1"
 )
 
+// global ctrl values
 var (
-	// debug mode
 	DEBUG = true
 )
 

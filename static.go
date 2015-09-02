@@ -1,11 +1,11 @@
 package uweb
 
 import (
+	"errors"
 	"mime"
 	"net/http"
 	"path/filepath"
 	"strings"
-	"errors"
 )
 
 //
@@ -577,14 +577,14 @@ func MdStatic(prefix, dir string) Middleware {
 //
 type Static struct {
 	prefix string // path prefix for statics
-	dir  string // static files abs path
+	dir    string // static files abs path
 }
 
 // Create file server
 func NewStatic(prefix, dir string) *Static {
 	return &Static{
 		prefix: prefix,
-		dir:  dir,
+		dir:    dir,
 	}
 }
 
