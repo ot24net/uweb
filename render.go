@@ -10,6 +10,11 @@ import (
 )
 
 //
+// Template data map
+//
+type TplMap map[string]interface{}
+
+//
 // Render interface
 //
 type Render interface {
@@ -20,8 +25,13 @@ type Render interface {
 	// http://www.cnblogs.com/dowinning/archive/2012/04/19/json-jsonp-jquery.html
 	Json(data interface{}, padding string) error
 
-	// html response
-	Html(file string, data interface{}) error
+	// Usage:
+	//  c.Render.Html("home", uweb.TplMap{
+	//    "common/header.html": data.header,
+	//    "home/content.html": data.content,
+	//    "common/footer.html": data.footer,
+	//  })
+	Html(name string, data TplMap) error
 }
 
 //
@@ -77,7 +87,7 @@ func (t *Template) Helper(name string, f interface{}) {
 }
 
 // Parse files and register helper funcs
-func (t *Template) Parse(name string) (*template.Template, error) {
+func (t *Template) Parse(name string, data TplMap) (*template.Template, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -86,8 +96,12 @@ func (t *Template) Parse(name string) (*template.Template, error) {
 		return tpl, nil
 	}
 
-	// new
-	tpl, err := template.ParseFiles(filepath.Join(t.dir, name))
+	// parse files
+	var files []string
+	for k, _ := range data {
+		files = append(files, filepath.Join(t.dir, k))
+	}
+	tpl, err := template.ParseFiles(files...)
 	if err != nil {
 		return nil, err
 	}
@@ -117,17 +131,22 @@ type tplRender struct {
 }
 
 // Render html
-func (r *tplRender) Html(name string, data interface{}) error {
+func (r *tplRender) Html(name string, data TplMap) error {
+	// verify
+	if len(data) == 0 {
+		panic("empty data is not allowed")
+	}
+
 	// tpl
-	tpl, err := r.tpl.Parse(name)
+	tpl, err := r.tpl.Parse(name, data)
 	if err != nil {
 		return err
 	}
 
 	// buf
 	buf := new(bytes.Buffer)
-	if err := tpl.Execute(buf, data); err != nil {
-		return err
+	for k, v := range data {
+		tpl.ExecuteTemplate(buf, k, v)
 	}
 
 	// w
