@@ -20,10 +20,9 @@ type Context struct {
 	Sess  *Session
 	Flash *Flash
 
-	// render template system
-	Render Render
-
-	// redirect to
+	// view
+	Locale   *Locale
+	Render   Render
 	Redirect *Redirect
 }
 

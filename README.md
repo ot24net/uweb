@@ -6,14 +6,14 @@ It borrows many ideas from Koa.js, Gin, Playframework, etc.
 ## example
 ```
 //
-// src/main.go
+// src/app/main.go
 // 
 package main
 
 import (
 	"github.com/ot24net/uweb"
 	
-	_ "ctrls/auth"
+	_ "ctrls/account"
     _ "models/account"
 )
 
@@ -57,6 +57,9 @@ func main() {
 	// Cors
 	app.Use(uweb.MdCors(uweb.DefaultCors))
 	
+	// I18n, depends on session if detect is true
+	app.Use(uweb.MdI18n(false, "zh_cn", "../../pub/locale"))
+	
 	// if you want more method, change route.go
 	app.Use(uweb.MdRouter())
 	
@@ -65,9 +68,9 @@ func main() {
 }
 
 //
-// src/ctrls/auth/login.go 
+// src/ctrls/account/login.go 
 //
-package auth
+package account
 
 import (
 	   "github.com/ot24net/uweb"
@@ -83,14 +86,27 @@ func init() {
 	 	 c.Render.Html("account/login.html", data)
 	 })	
 	 
+	 // post
+	 uweb.Post("/api/login/", func(c *uweb.Context) {
+	 	c.Render.Json("", "")
+	 })
+	 
 	 // not support regexp match
 	 uweb.Put("/account/:user_id", func (c *uweb.Context) {
 	     userId := c.Req.Params["user_id"]
 	 	 println(userId)
 	 	 account.Noop(userId)
-	 	 c.Res.Status = 201
 	 	 c.Render.Plain("success")
      })
+}
+
+//
+// src/models/account/noop.go
+//
+package account
+
+func Noop(userId int) {
+	// do nothing
 }
 
 ```
