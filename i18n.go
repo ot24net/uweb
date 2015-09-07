@@ -40,7 +40,7 @@ func MdI18n(detect bool, locale, root string) Middleware {
 		if DEBUG {
 			log.Printf("I18n: Walk path-%s, name-%s\n", path, info.Name())
 		}
-		cfgs[info.Name()] = cfg
+		cfgs[filepath.Base(info.Name())] = cfg
 		return nil
 	})
 	if len(cfgs) == 0 {
@@ -85,11 +85,13 @@ func (i *I18n) Handle(c *Context) int {
 				code = k.Value
 			} else {
 				// 3. from session
-				if v := c.Sess.Get(LOCALE_KEY); len(v) > 0 {
-					if DEBUG {
-						log.Println("I18n: found locale in session")
+				if c.Sess != nil {
+					if v := c.Sess.Get(LOCALE_KEY); len(v) > 0 {
+						if DEBUG {
+							log.Println("I18n: found locale in session")
+						}
+						code = v
 					}
-					code = v
 				}
 			}
 		}

@@ -54,9 +54,13 @@ func (m *SessMan) Handle(c *Context) int {
 		c.Res.SetCookie(SID_COOKIE_KEY, s.Id())
 	} else {
 		if err := s.restore(c.Cache); err != nil {
-			c.Res.Status = 500
-			c.Res.Err = err
-			return NEXT_BREAK
+			// if memcache not start, and sid exist in cookie,
+			// make it as new session
+			if err != ErrCacheMiss {
+				c.Res.Status = 500
+				c.Res.Err = err
+				return NEXT_BREAK
+			}
 		}
 	}
 	c.Sess = s

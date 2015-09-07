@@ -1,5 +1,9 @@
 package uweb
 
+import (
+	"log"
+)
+
 //
 // Per request context
 //
@@ -60,6 +64,9 @@ func (c *Context) Next() int {
 		}
 		ret = c.app.mws[c.cursor].Handle(c)
 		if ret != NEXT_CONTINUE {
+			if DEBUG {
+				log.Printf("Context: break at cursor:%d\n", c.cursor)
+			}
 			c.cursor = s
 		}
 	}

@@ -9,6 +9,10 @@ import (
 	//"github.com/garyburd/redigo/redis"
 )
 
+var (
+	ErrCacheMiss = memcache.ErrCacheMiss
+)
+
 //
 // Cache interface
 //
