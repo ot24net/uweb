@@ -20,7 +20,7 @@ func (p Params) Int(key string) int {
 	}
 	v, err := strconv.Atoi(s)
 	if err != nil {
-		log.Println("Params.Int err:", err)
+		log.Println(LOG_TAG, "Params: Int err", err)
 		return 0
 	}
 	return v

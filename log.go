@@ -15,6 +15,10 @@ const (
 	LOG_LEVEL_2 = 2
 )
 
+var (
+	LOG_TAG = "[uweb]"
+)
+
 //
 // Create log middleware
 //
@@ -35,10 +39,6 @@ func NewLogger(level int) *Logger {
 	}
 }
 
-const (
-	uweb_log_tag = "[uweb]"
-)
-
 // @impl Middleware
 func (lg *Logger) Handle(c *Context) int {
 	reqBody := "\n"
@@ -50,7 +50,7 @@ func (lg *Logger) Handle(c *Context) int {
 		reqBody = fmt.Sprintf("\n{\n\n%s}\n", string(dump))
 	}
 
-	log.Printf("%s %s%s %s %s %s", uweb_log_tag, c.Req.IP, "-->", c.Req.Method, c.Req.URL.Path, reqBody)
+	log.Printf("%s %s%s %s %s %s", LOG_TAG, c.Req.IP, "-->", c.Req.Method, c.Req.URL.Path, reqBody)
 
 	start := time.Now()
 	c.Next()
@@ -66,7 +66,7 @@ func (lg *Logger) Handle(c *Context) int {
 		}
 		resBody = fmt.Sprintf("\n{\n\n%s\n\n}\n", dump)
 	}
-	log.Printf("%s %s%s %s %s %d %d(byte) %d(ms) %s", uweb_log_tag, c.Req.IP, "<--", c.Req.Method, c.Req.URL.Path, c.Res.Status, size, spend, resBody)
+	log.Printf("%s %s%s %s %s %d %d(byte) %d(ms) %s", LOG_TAG, c.Req.IP, "<--", c.Req.Method, c.Req.URL.Path, c.Res.Status, size, spend, resBody)
 
 	return NEXT_CONTINUE
 }

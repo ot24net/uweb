@@ -47,7 +47,7 @@ func (a *Application) Use(m Middleware) {
 // Listen and start serve
 func (a *Application) Listen(addr string) error {
 	if DEBUG {
-		log.Println("[uweb] listen:", addr)
+		log.Println(LOG_TAG, "Application: listen at", addr)
 	}
 	return http.ListenAndServe(addr, a)
 }

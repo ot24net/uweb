@@ -1,10 +1,11 @@
 package uweb
 
 import (
-	"github.com/robfig/config"
 	"log"
 	"os"
 	"path/filepath"
+	
+	"github.com/robfig/config"
 )
 
 var (
@@ -38,7 +39,7 @@ func MdI18n(detect bool, locale, root string) Middleware {
 			return err
 		}
 		if DEBUG {
-			log.Printf("I18n: Walk path-%s, name-%s\n", path, info.Name())
+			log.Printf("%s I18n: Walk path-%s, name-%s\n", LOG_TAG, path, info.Name())
 		}
 		cfgs[filepath.Base(info.Name())] = cfg
 		return nil
@@ -72,24 +73,15 @@ func (i *I18n) Handle(c *Context) int {
 	if i.detect {
 		// 1. from query
 		if q := c.Req.FormValue(LOCALE_KEY); len(q) > 0 {
-			if DEBUG {
-				log.Println("I18n: found locale in form")
-			}
 			code = q
 		} else {
 			// 2. from cookie
 			if k, err := c.Req.Cookie(LOCALE_KEY); err == nil && k != nil && len(k.Value) > 0 {
-				if DEBUG {
-					log.Println("I18n: found locale in cookie")
-				}
 				code = k.Value
 			} else {
 				// 3. from session
 				if c.Sess != nil {
 					if v := c.Sess.Get(LOCALE_KEY); len(v) > 0 {
-						if DEBUG {
-							log.Println("I18n: found locale in session")
-						}
 						code = v
 					}
 				}
@@ -99,9 +91,6 @@ func (i *I18n) Handle(c *Context) int {
 
 	// fallback
 	if len(code) == 0 {
-		if DEBUG {
-			log.Println("I18n: use fallback locale")
-		}
 		code = i.locale
 	}
 
@@ -129,7 +118,7 @@ func (l *Locale) Str(section, key string) string {
 	data, ok := l.i18n.cfgs[l.i18n.locale]
 	if !ok {
 		if DEBUG {
-			log.Println("I18n: not found value in locale files, check section and key")
+			log.Println(LOG_TAG, "I18n: not found value in locale files, check section and key")
 		}
 		return ""
 	}

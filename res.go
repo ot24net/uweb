@@ -49,7 +49,7 @@ func (res *Response) End(req *Request) error {
 		if DEBUG {
 			http.Error(res, res.Err.Error(), res.Status)
 		} else {
-			log.Println("[uweb] ERROR", res.Err)
+			log.Println(LOG_TAG, "Response: End err", res.Err)
 			http.Error(res, "some error happens", res.Status)
 		}
 		return nil
