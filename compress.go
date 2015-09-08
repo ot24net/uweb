@@ -3,7 +3,6 @@ package uweb
 import (
 	"compress/gzip"
 	"net/http"
-	"path/filepath"
 	"strings"
 	"sync"
 )

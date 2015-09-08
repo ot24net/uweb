@@ -9,6 +9,17 @@ import (
 )
 
 //
+// Static file server middleware
+//
+func MdStatic(root, prefix string) Middleware {
+	dir, err := filepath.Abs(root)
+	if err != nil {
+		panic(err)
+	}
+	return NewStatic(dir, prefix)
+}
+
+//
 // Go use system's mime, see:
 // http://golang.org/pkg/mime/#TypeByExt...
 //
@@ -561,17 +572,6 @@ func init() {
 }
 
 //
-// Static file server middleware
-//
-func MdStatic(prefix, dir string) Middleware {
-	dir, err := filepath.Abs(dir)
-	if err != nil {
-		panic(err)
-	}
-	return NewStatic(prefix, dir)
-}
-
-//
 // Static file server, only suite for small project
 // If your web site is busy, use CDN.
 //
@@ -581,10 +581,10 @@ type Static struct {
 }
 
 // Create file server
-func NewStatic(prefix, dir string) *Static {
+func NewStatic(root, prefix string) *Static {
 	return &Static{
 		prefix: prefix,
-		dir:    dir,
+		dir:    root,
 	}
 }
 
