@@ -58,7 +58,7 @@ func main() {
 	app.Use(uweb.MdCors(uweb.DefaultCors))
 	
 	// I18n, depends on session if detect is true
-	app.Use(uweb.MdI18n(false, "zh_cn", "../../pub/locale"))
+	app.Use(uweb.MdI18n("../../pub/locale", "zh_cn", false))
 	
 	// if you want more method, change route.go
 	app.Use(uweb.MdRouter())

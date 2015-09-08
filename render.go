@@ -27,8 +27,8 @@ type Render interface {
 
 	// Render html format
 	//
-	// name - a key to represent data
-	// data - an array, will each template in order
+	// name - a key to data, for cache
+	// data - will execute template in array order
 	//
 	// Usage:
 	//  c.Render.Html("home", uweb.TplData{

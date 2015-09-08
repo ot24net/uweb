@@ -49,6 +49,7 @@ func (c *Context) Reset() {
 	c.Sess = nil
 	c.Flash = nil
 
+	c.Locale = nil
 	c.Redirect = nil
 }
 
@@ -64,9 +65,7 @@ func (c *Context) Next() int {
 		}
 		ret = c.app.mws[c.cursor].Handle(c)
 		if ret != NEXT_CONTINUE {
-			if DEBUG {
-				log.Println(LOG_TAG, "Context: break at cursor", c.cursor)
-			}
+			log.Println(LOG_TAG, "Context: break at cursor", c.cursor)
 			c.cursor = s
 		}
 	}

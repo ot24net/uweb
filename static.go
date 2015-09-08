@@ -573,7 +573,7 @@ func MdStatic(prefix, dir string) Middleware {
 
 //
 // Static file server, only suite for small project
-// If your web site is busy, just use CDN.
+// If your web site is busy, use CDN.
 //
 type Static struct {
 	prefix string // path prefix for statics

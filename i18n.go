@@ -19,7 +19,7 @@ var (
 // locale - fallback locale
 // root   - locale files directory
 //
-func MdI18n(detect bool, locale, root string) Middleware {
+func MdI18n(root, locale string, detect bool) Middleware {
 	// locale
 	if len(locale) == 0 {
 		panic("I18n: locale is empty")
