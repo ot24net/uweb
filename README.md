@@ -80,13 +80,16 @@ import (
 func init() {
 	 // simple get
 	 uweb.Get("/account/login", func(c *uweb.Context) {
-	 	 data := map[string]string {
+	 	 header := map[string]string {
+	 	 	  "key": "value"
+		 }		  	  
+	 	 content := map[string]string {
 	 	 	  "key": "value"
 		 }		  	  
 	 	 c.Render.Html("account/login", uweb.TplData{
-		     {"common/header.html", data.header},
-	     	 {"home/content.html", data.content},
-	         {"common/footer.html", data.footer},
+		     {"common/header.html", header},
+	     	 {"home/content.html", content},
+	         {"common/footer.html", null},
 		 })
 	 })	
 	 
