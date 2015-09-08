@@ -105,7 +105,7 @@ func (g *Gzip) bypass(req *Request) bool {
 	}
 
 	// ignore HEAD
-	if req.Method == "HEAD" {
+	if req.Method == "HEAD" || req.Method == "OPTIONS" {
 		return true
 	}
 
@@ -113,19 +113,7 @@ func (g *Gzip) bypass(req *Request) bool {
 	if len(req.Header.Get("Sec-WebSocket-Key")) > 0 {
 		return true
 	}
-
-	// some files need not compress
-	// TODO: compress cannot work with static
-	ext := filepath.Ext(req.URL.Path)
-	if len(ext) > 1 && ext[0:1] == "." {
-		switch ext {
-		case ".png", ".gif", ".jpeg", ".jpg", ".ico":
-			return true
-		case ".zip", ".rar", ".gz", ".bz2", ".tgz", ".Z":
-			return true
-		}
-	}
-
+	
 	// ok
 	return false
 }

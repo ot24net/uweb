@@ -1,8 +1,9 @@
 package uweb
 
 import (
-	"github.com/robfig/config"
 	"sync"
+	
+	"github.com/robfig/config"
 )
 
 //
