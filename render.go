@@ -10,35 +10,58 @@ import (
 )
 
 //
-// Template data map
-//
-type TplMap map[string]interface{}
-
-//
 // Render interface
 //
 type Render interface {
 	// plain text
 	Plain(data string) error
 
-	// json or jsonp if padding not empty, about jsonp see:
+	// Render json format
+	//
+	// data - will json marshal
+	// padding - JSONP padding function name
+	//
+	// about jsonp see:
 	// http://www.cnblogs.com/dowinning/archive/2012/04/19/json-jsonp-jquery.html
 	Json(data interface{}, padding string) error
 
+	// Render html format
+	//
+	// name - a key to represent data
+	// data - an array, will each template in order
+	//
 	// Usage:
-	//  c.Render.Html("home", uweb.TplMap{
-	//    "common/header.html": data.header,
-	//    "home/content.html": data.content,
-	//    "common/footer.html": data.footer,
+	//  c.Render.Html("home", uweb.TplData{
+	//      {"common/header.html", data.header},
+	//      {"home/content.html", data.content},
+	//      {"common/footer.html", data.footer},
 	//  })
-	Html(name string, data TplMap) error
+	Html(name string, data TplData) error
 }
+
+//
+// Template data item
+//
+type TplItem struct {
+	Name string      // name and path
+	Data interface{} // execute data or null
+}
+
+//
+// Template data array
+//
+type TplData []*TplItem
 
 //
 // Create render middleware
 //
-func MdRender(dir string) Middleware {
-	defaultTpl.BaseBy(dir)
+// root - Template files root path
+// left - left delimiter, if empty default to {{
+// right - right delimiter, if empty default to }}
+//
+func MdRender(root, left, right string) Middleware {
+	defaultTpl.BaseBy(root)
+	defaultTpl.Delims(left, right)
 	return defaultTpl
 }
 
@@ -58,9 +81,18 @@ func Helper(name string, f interface{}) {
 // Cached template
 //
 type Template struct {
-	dir     string
+	// root dir
+	dir string
+
+	// delimiters
+	left       string // default is {{
+	right      string // default is }}
+	custDelims bool
+
+	// template helpers
 	helpers map[string]interface{}
 
+	// cache
 	mu    sync.Mutex // protect cache
 	cache map[string]*template.Template
 }
@@ -78,6 +110,15 @@ func (t *Template) BaseBy(dir string) {
 	t.dir = dir
 }
 
+// Set delimiters
+func (t *Template) Delims(left, right string) {
+	t.left = left
+	t.right = right
+	if len(t.left) > 0 && len(t.right) > 0 {
+		t.custDelims = true
+	}
+}
+
 // Register helper funcs
 func (t *Template) Helper(name string, f interface{}) {
 	if _, ok := t.helpers[name]; ok {
@@ -87,7 +128,7 @@ func (t *Template) Helper(name string, f interface{}) {
 }
 
 // Parse files and register helper funcs
-func (t *Template) Parse(name string, data TplMap) (*template.Template, error) {
+func (t *Template) Parse(name string, data TplData) (*template.Template, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -98,8 +139,8 @@ func (t *Template) Parse(name string, data TplMap) (*template.Template, error) {
 
 	// parse files
 	var files []string
-	for k, _ := range data {
-		files = append(files, filepath.Join(t.dir, k))
+	for _, v := range data {
+		files = append(files, filepath.Join(t.dir, v.Name))
 	}
 	tpl, err := template.ParseFiles(files...)
 	if err != nil {
@@ -110,6 +151,11 @@ func (t *Template) Parse(name string, data TplMap) (*template.Template, error) {
 	// register helpers
 	if len(t.helpers) > 0 {
 		tpl.Funcs(t.helpers)
+	}
+
+	// delims
+	if t.custDelims {
+		tpl.Delims(t.left, t.right)
 	}
 
 	// ok
@@ -131,7 +177,7 @@ type tplRender struct {
 }
 
 // Render html
-func (r *tplRender) Html(name string, data TplMap) error {
+func (r *tplRender) Html(name string, data TplData) error {
 	// verify
 	if len(data) == 0 {
 		panic("empty data is not allowed")
@@ -145,8 +191,8 @@ func (r *tplRender) Html(name string, data TplMap) error {
 
 	// buf
 	buf := new(bytes.Buffer)
-	for k, v := range data {
-		tpl.ExecuteTemplate(buf, k, v)
+	for _, v := range data {
+		tpl.ExecuteTemplate(buf, v.Name, v.Data)
 	}
 
 	// w

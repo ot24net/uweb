@@ -52,7 +52,7 @@ func main() {
 	app.Use(uweb.MdConfig("../../etc/demo.cfg"))
 	
 	// Html render
-	app.Use(uweb.MdRender("../../pub/html"))
+	app.Use(uweb.MdRender("../../pub/html", "", ""))
 	
 	// Cors
 	app.Use(uweb.MdCors(uweb.DefaultCors))
@@ -83,7 +83,11 @@ func init() {
 	 	 data := map[string]string {
 	 	 	  "key": "value"
 		 }		  	  
-	 	 c.Render.Html("account/login.html", data)
+	 	 c.Render.Html("account/login", uweb.TplData{
+		     {"common/header.html", data.header},
+	     	 {"home/content.html", data.content},
+	         {"common/footer.html", data.footer},
+		 })
 	 })	
 	 
 	 // post
