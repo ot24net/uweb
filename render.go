@@ -1,13 +1,27 @@
 package uweb
 
 import (
+	"io"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"path/filepath"
-	"sync"
 )
+
+//
+// Create render middleware
+//
+// root - Template files root path
+// left - left delimiter, if empty default to {{
+// right - right delimiter, if empty default to }}
+//
+func MdRender(root string) Middleware {
+	tpl, err := NewTemplate(root)
+	if err != nil {
+		panic(err)
+	}
+	return tpl
+}
 
 //
 // Render interface
@@ -29,143 +43,51 @@ type Render interface {
 	//
 	// name - a key to data, for cache
 	// data - will execute template in array order
-	//
-	// Usage:
-	//  c.Render.Html("home", uweb.TplData{
-	//      {"common/header.html", data.header},
-	//      {"home/content.html", data.content},
-	//      {"common/footer.html", data.footer},
-	//  })
-	Html(name string, data TplData) error
-}
-
-//
-// Template data item
-//
-type TplItem struct {
-	Name string      // name and path
-	Data interface{} // execute data or null
-}
-
-//
-// Template data array
-//
-type TplData []*TplItem
-
-//
-// Create render middleware
-//
-// root - Template files root path
-// left - left delimiter, if empty default to {{
-// right - right delimiter, if empty default to }}
-//
-func MdRender(root, left, right string) Middleware {
-	defaultTpl.BaseBy(root)
-	defaultTpl.Delims(left, right)
-	return defaultTpl
+	Html(name string, data interface{}) error
 }
 
 //
 // Default template
 //
 var (
-	defaultTpl = NewTemplate()
+	tplHelpers = make(map[string]interface{})
 )
 
 // Register helper to default tpl instance
 func Helper(name string, f interface{}) {
-	defaultTpl.Helper(name, f)
+	if _, ok := tplHelpers[name]; ok {
+		panic("Template: DUP helper")
+	}
+	tplHelpers[name] = f
 }
 
 //
 // Cached template
 //
 type Template struct {
-	// root dir
-	dir string
-
-	// delimiters
-	left       string // default is {{
-	right      string // default is }}
-	custDelims bool
-
-	// template helpers
-	helpers map[string]interface{}
-
-	// cache
-	mu    sync.Mutex // protect cache
-	cache map[string]*template.Template
+	tpl *template.Template
 }
 
 // Create empty object
-func NewTemplate() *Template {
-	return &Template{
-		helpers: make(map[string]interface{}),
-		cache:   make(map[string]*template.Template),
-	}
-}
-
-// Set root dir
-func (t *Template) BaseBy(dir string) {
-	t.dir = dir
-}
-
-// Set delimiters
-func (t *Template) Delims(left, right string) {
-	t.left = left
-	t.right = right
-	if len(t.left) > 0 && len(t.right) > 0 {
-		t.custDelims = true
-	}
-}
-
-// Register helper funcs
-func (t *Template) Helper(name string, f interface{}) {
-	if _, ok := t.helpers[name]; ok {
-		panic("Template: DUP helper")
-	}
-	t.helpers[name] = f
-}
-
-// Parse files and register helper funcs
-func (t *Template) Parse(name string, data TplData) (*template.Template, error) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	// in cache?
-	if tpl, ok := t.cache[name]; ok {
-		return tpl, nil
-	}
-
-	// parse files
-	var files []string
-	for _, v := range data {
-		files = append(files, filepath.Join(t.dir, v.Name))
-	}
-	tpl, err := template.ParseFiles(files...)
+func NewTemplate(pattern string) (*Template, error) {
+	tpl, err := template.ParseGlob(pattern)
 	if err != nil {
 		return nil, err
 	}
-	t.cache[name] = tpl
-
-	// register helpers
-	if len(t.helpers) > 0 {
-		tpl.Funcs(t.helpers)
-	}
-
-	// delims
-	if t.custDelims {
-		tpl.Delims(t.left, t.right)
-	}
-
-	// ok
-	return tpl, nil
+	return &Template {
+		tpl: tpl,
+	}, nil
 }
 
 // @impl Midelleware
 func (t *Template) Handle(c *Context) int {
 	c.Render = &tplRender{c, t}
 	return NEXT_CONTINUE
+}
+
+// Execute template
+func (t *Template) Execute(w io.Writer, name string, data interface{}) error {
+	return t.tpl.ExecuteTemplate(w, name, data)
 }
 
 //
@@ -177,23 +99,10 @@ type tplRender struct {
 }
 
 // Render html
-func (r *tplRender) Html(name string, data TplData) error {
-	// verify
-	if len(data) == 0 {
-		panic("empty data is not allowed")
-	}
-
-	// tpl
-	tpl, err := r.tpl.Parse(name, data)
-	if err != nil {
-		return err
-	}
-
-	// buf
+func (r *tplRender) Html(name string, data interface{}) error {
+	// exec
 	buf := new(bytes.Buffer)
-	for _, v := range data {
-		tpl.ExecuteTemplate(buf, v.Name, v.Data)
-	}
+	r.tpl.Execute(buf, name, data)
 
 	// w
 	w := r.c.Res

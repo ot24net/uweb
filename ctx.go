@@ -12,9 +12,6 @@ type Context struct {
 	app    *Application
 	cursor int
 
-	// cfg
-	Cfg Config
-
 	// req & res
 	Req *Request
 	Res *Response
