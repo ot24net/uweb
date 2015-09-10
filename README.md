@@ -48,11 +48,8 @@ func main() {
 	// Csrf depends on session, and get the Csrf token from session with key: CSRF_TOKEN_KEY
 	app.Use(uweb.MdCsrf())
 	
-	// Read ini config file
-	app.Use(uweb.MdConfig("../../etc/demo.cfg"))
-	
 	// Html render
-	app.Use(uweb.MdRender("../../pub/html", "", ""))
+	app.Use(uweb.MdRender("../../pub/html/*"))
 	
 	// Cors
 	app.Use(uweb.MdCors(uweb.DefaultCors))
@@ -80,17 +77,10 @@ import (
 func init() {
 	 // simple get
 	 uweb.Get("/account/login", func(c *uweb.Context) {
-	 	 header := map[string]string {
-	 	 	  "key": "value"
-		 }		  	  
 	 	 content := map[string]string {
 	 	 	  "key": "value"
 		 }		  	  
-	 	 c.Render.Html("account/login", uweb.TplData{
-		     {"common/header.html", header},
-	     	 {"home/content.html", content},
-	         {"common/footer.html", null},
-		 })
+	 	 c.Render.Html("account/login", content)
 	 })	
 	 
 	 // post
