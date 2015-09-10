@@ -9,21 +9,6 @@ import (
 )
 
 //
-// Create render middleware
-//
-// root - Template files root path
-// left - left delimiter, if empty default to {{
-// right - right delimiter, if empty default to }}
-//
-func MdRender(root string) Middleware {
-	tpl, err := NewTemplate(root)
-	if err != nil {
-		panic(err)
-	}
-	return tpl
-}
-
-//
 // Render interface
 //
 type Render interface {
@@ -44,6 +29,17 @@ type Render interface {
 	// name - a key to data, for cache
 	// data - will execute template in array order
 	Html(name string, data interface{}) error
+}
+
+//
+// Create render middleware
+//
+func MdRender(pattern string) Middleware {
+	tpl, err := NewTemplate(pattern)
+	if err != nil {
+		panic(err)
+	}
+	return tpl
 }
 
 //
@@ -98,7 +94,7 @@ type tplRender struct {
 	tpl *Template
 }
 
-// Render html
+// @impl Render.Html
 func (r *tplRender) Html(name string, data interface{}) error {
 	// exec
 	buf := new(bytes.Buffer)
@@ -122,7 +118,7 @@ func (r *tplRender) Html(name string, data interface{}) error {
 	return nil
 }
 
-// Plain text
+// @impl Render.Plain
 func (r *tplRender) Plain(data string) error {
 	// w
 	w := r.c.Res
@@ -140,7 +136,7 @@ func (r *tplRender) Plain(data string) error {
 	return nil
 }
 
-// Render json
+// @impl Render.Json
 func (r *tplRender) Json(v interface{}, padding string) error {
 	// w
 	w := r.c.Res
