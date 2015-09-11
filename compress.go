@@ -112,7 +112,7 @@ func (g *Gzip) bypass(req *Request) bool {
 	if len(req.Header.Get("Sec-WebSocket-Key")) > 0 {
 		return true
 	}
-	
+
 	// ok
 	return false
 }

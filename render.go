@@ -1,11 +1,14 @@
 package uweb
 
 import (
-	"io"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
+	"log"
+	"os"
+	"path/filepath"
 )
 
 //
@@ -26,16 +29,16 @@ type Render interface {
 
 	// Render html format
 	//
-	// name - a key to data, for cache
-	// data - will execute template in array order
+	// name - Template name
+	// data - Data for template
 	Html(name string, data interface{}) error
 }
 
 //
 // Create render middleware
 //
-func MdRender(pattern string) Middleware {
-	tpl, err := NewTemplate(pattern)
+func MdRender(root, suffix string) Middleware {
+	tpl, err := NewTemplate(root, suffix)
 	if err != nil {
 		panic(err)
 	}
@@ -65,12 +68,39 @@ type Template struct {
 }
 
 // Create empty object
-func NewTemplate(pattern string) (*Template, error) {
-	tpl, err := template.ParseGlob(pattern)
+func NewTemplate(root, suffix string) (*Template, error) {
+	// walk
+	var files []string
+	filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		if info == nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		match := true
+		if len(suffix) > 0 {
+			if filepath.Ext(path) != suffix {
+				match = false
+			}
+		}
+		if match {
+			files = append(files, path)
+			if DEBUG {
+				log.Println(LOG_TAG, "Template: parse file ", path)
+			}
+		}
+		return nil
+	})
+
+	// parse
+	tpl, err := template.ParseFiles(files...)
 	if err != nil {
 		return nil, err
 	}
-	return &Template {
+
+	// tpl
+	return &Template{
 		tpl: tpl,
 	}, nil
 }

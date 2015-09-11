@@ -49,7 +49,7 @@ func main() {
 	app.Use(uweb.MdCsrf())
 	
 	// Html render
-	app.Use(uweb.MdRender("../../pub/html/*"))
+	app.Use(uweb.MdRender("../../pub/html", ".html"))
 	
 	// Cors
 	app.Use(uweb.MdCors(uweb.DefaultCors))
