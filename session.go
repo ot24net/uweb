@@ -130,6 +130,12 @@ func (s *Session) Get(k string) string {
 	return v
 }
 
+// Item exists
+func (s *Session) Has(k string) bool {
+	_, ok := s.data[k]
+	return ok
+}
+
 // Del item
 func (s *Session) Del(k string) {
 	if _, ok := s.data[k]; ok {
