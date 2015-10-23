@@ -1,6 +1,7 @@
 package uweb
 
 import (
+	"net/http"
 	"crypto/rand"
 	"crypto/sha1"
 	"crypto/subtle"
@@ -61,7 +62,13 @@ func (cf *Csrf) Handle(c *Context) int {
 		c.Sess.Set(CSRF_TOKEN_KEY, token)
 
 		// for angular.js
-		c.Res.SetCookie("XSRF-TOKEN", token)
+		http.SetCookie(c.Res, &http.Cookie{
+			Name: "XSRF-TOKEN",
+			Value: s.Id(),
+			Path: "/",
+			HttpOnly: false,
+			MaxAge: 365 * 24 * 3600,
+		})
 	}
 
 	// ignore method

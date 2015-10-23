@@ -1,6 +1,7 @@
 package uweb
 
 import (
+	"net/http"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -8,8 +9,8 @@ import (
 )
 
 var (
-	// cookie id for session
 	SID_COOKIE_KEY = "_sid"
+	SID_COOKIE_DOMAIN = ""
 )
 
 //
@@ -51,7 +52,14 @@ func (m *SessMan) Handle(c *Context) int {
 	// session
 	s := NewSession(sid)
 	if newSess {
-		c.Res.SetCookie(SID_COOKIE_KEY, s.Id())
+		http.SetCookie(c.Res, &http.Cookie{
+			Name: SID_COOKIE_KEY,
+			Value: s.Id(),
+			Domain: SID_COOKIE_DOMAIN,
+			Path: "/",
+			HttpOnly: true,
+			MaxAge: 365 * 24 * 3600,
+		})
 	} else {
 		if err := s.restore(c.Cache); err != nil {
 			// if memcache not start, and sid exist in cookie,

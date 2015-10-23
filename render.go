@@ -15,18 +15,6 @@ import (
 // Render interface
 //
 type Render interface {
-	// plain text
-	Plain(data string) error
-
-	// Render json format
-	//
-	// data - will json marshal
-	// padding - JSONP padding function name
-	//
-	// about jsonp see:
-	// http://www.cnblogs.com/dowinning/archive/2012/04/19/json-jsonp-jquery.html
-	Json(data interface{}, padding string) error
-
 	// Render html format
 	//
 	// name - Template name
@@ -138,52 +126,6 @@ func (r *tplRender) Html(name string, data interface{}) error {
 
 	//  body
 	w.Body = buf.Bytes()
-
-	// status
-	if w.Status == 0 {
-		w.Status = 200
-	}
-
-	// ok
-	return nil
-}
-
-// @impl Render.Plain
-func (r *tplRender) Plain(data string) error {
-	// w
-	w := r.c.Res
-
-	// body
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.Body = []byte(data)
-
-	// status
-	if w.Status == 0 {
-		w.Status = 200
-	}
-
-	// ok
-	return nil
-}
-
-// @impl Render.Json
-func (r *tplRender) Json(v interface{}, padding string) error {
-	// w
-	w := r.c.Res
-
-	// body
-	result, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-	if len(padding) > 0 {
-		result = []byte(fmt.Sprintf("%s(%s);", padding, string(result)))
-	}
-	w.Body = result
-
-	// header
-	w.Header().Del("Content-Length")
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	// status
 	if w.Status == 0 {
