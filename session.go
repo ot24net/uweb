@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io"
+	"log"
 )
 
 var (
@@ -62,6 +63,7 @@ func (m *SessMan) Handle(c *Context) int {
 		})
 	} else {
 		if err := s.restore(c.Cache); err != nil {
+			log.Println(LOG_TAG, "Session: restore err", err)
 			// if memcache not start, and sid exist in cookie,
 			// make it as new session
 			if err != ErrCacheMiss {
@@ -78,6 +80,7 @@ func (m *SessMan) Handle(c *Context) int {
 
 	// save session
 	if err := s.save(c.Cache, m.expire); err != nil {
+		log.Println(LOG_TAG, "Session: save err", err)
 		c.Res.Status = 500
 		c.Res.Err = err
 		return NEXT_BREAK
@@ -172,9 +175,12 @@ func (s *Session) save(cache Cache, expire int) error {
 	if !s.dirty {
 		return nil
 	}
+	s.dirty = false
+	
 	data, err := json.Marshal(s.data)
 	if err != nil {
 		return err
 	}
+	
 	return cache.Set(s.sid, data, expire)
 }

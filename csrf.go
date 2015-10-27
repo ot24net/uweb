@@ -64,7 +64,7 @@ func (cf *Csrf) Handle(c *Context) int {
 		// for angular.js
 		http.SetCookie(c.Res, &http.Cookie{
 			Name: "XSRF-TOKEN",
-			Value: s.Id(),
+			Value: token,
 			Path: "/",
 			HttpOnly: false,
 			MaxAge: 365 * 24 * 3600,

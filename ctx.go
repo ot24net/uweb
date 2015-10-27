@@ -24,6 +24,8 @@ type Context struct {
 	// view
 	Locale   *Locale
 	Render   Render
+	
+	// route
 	Redirect *Redirect
 }
 

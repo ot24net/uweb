@@ -11,12 +11,12 @@ import (
 //
 // Static file server middleware
 //
-func MdStatic(root, prefix string) Middleware {
+func MdStatic(prefix, root string) Middleware {
 	dir, err := filepath.Abs(root)
 	if err != nil {
 		panic(err)
 	}
-	return NewStatic(dir, prefix)
+	return NewStatic(prefix, dir)
 }
 
 //
@@ -581,7 +581,7 @@ type Static struct {
 }
 
 // Create file server
-func NewStatic(root, prefix string) *Static {
+func NewStatic(prefix, root string) *Static {
 	return &Static{
 		prefix: prefix,
 		dir:    root,

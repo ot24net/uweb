@@ -2,7 +2,9 @@ package uweb
 
 import (
 	"log"
+	"fmt"
 	"net/http"
+	"encoding/json"
 )
 
 //
@@ -22,63 +24,6 @@ type Response struct {
 func NewResponse(w http.ResponseWriter) *Response {
 	return &Response{w, 0, nil, nil, nil}
 }
-
-// empty
-func (res *Response) Empty() {
-	w.Status = 204
-}
-
-// Plain text
-func (res *Response) Plain(status int, data string) {
-	// w
-	w := res
-
-	// body
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.Body = []byte(data)
-
-	// status
-	w.Status = status
-	if w.Status == 0 {
-		w.Status = 200
-	}
-}
-
-// about jsonp see:
-// http://www.cnblogs.com/dowinning/archive/2012/04/19/json-jsonp-jquery.html
-func (res *Response) Jsonp(status int, padding string, v interface{}) error {
-	// w
-	w := res
-
-	// body
-	result, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-	if len(padding) > 0 {
-		result = []byte(fmt.Sprintf("%s(%s);", padding, string(result)))
-	}
-	w.Body = result
-
-	// header
-	w.Header().Del("Content-Length")
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-
-	// status
-	w.Status = status
-	if w.Status == 0 {
-		w.Status = 200
-	}
-
-	// ok
-	return nil
-}
-
-// json
-func (res *Response) Json(status int, v interface{}, padding string) error {
-	return res.Jsonp(status, v, padding)
-}
-
 
 // Send status and body
 func (res *Response) End(req *Request) error {
@@ -135,4 +80,78 @@ func (res *Response) End(req *Request) error {
 
 	// ok
 	return nil
+}
+
+// empty
+func (res *Response) Empty() {
+	res.Status = 204
+}
+
+// Plain text
+func (res *Response) Plain(status int, data string) {
+	// w
+	w := res
+
+	// body
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Body = []byte(data)
+
+	// status
+	w.Status = status
+	if w.Status == 0 {
+		w.Status = 200
+	}
+}
+
+// about jsonp see:
+// http://www.cnblogs.com/dowinning/archive/2012/04/19/json-jsonp-jquery.html
+func (res *Response) Jsonp(status int, padding string, v interface{}) error {
+	// w
+	w := res
+
+	// body
+	result, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	if len(padding) > 0 {
+		result = []byte(fmt.Sprintf("%s(%s);", padding, string(result)))
+	}
+	w.Body = result
+
+	// header
+	w.Header().Del("Content-Length")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	// status
+	w.Status = status
+	if w.Status == 0 {
+		w.Status = 200
+	}
+
+	// ok
+	return nil
+}
+
+// json
+func (res *Response) Json(status int, v interface{}) error {
+	return res.Jsonp(status, "", v)
+}
+
+// Html
+func (res *Response) Html(status int, body []byte) {
+	// w
+	w := res
+
+	// set body header
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	//  body
+	w.Body = body
+
+	// status
+	w.Status = status
+	if w.Status == 0 {
+		w.Status = 200
+	}
 }

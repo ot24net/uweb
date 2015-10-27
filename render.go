@@ -2,8 +2,6 @@ package uweb
 
 import (
 	"bytes"
-	"encoding/json"
-	"fmt"
 	"html/template"
 	"io"
 	"log"
@@ -19,7 +17,7 @@ type Render interface {
 	//
 	// name - Template name
 	// data - Data for template
-	Html(name string, data interface{}) error
+	Html(status int, name string, data interface{}) error
 }
 
 //
@@ -113,25 +111,16 @@ type tplRender struct {
 }
 
 // @impl Render.Html
-func (r *tplRender) Html(name string, data interface{}) error {
-	// exec
+func (r *tplRender) Html(status int, name string, data interface{}) error {
 	buf := new(bytes.Buffer)
-	r.tpl.Execute(buf, name, data)
-
-	// w
-	w := r.c.Res
-
-	// set body header
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
-	//  body
-	w.Body = buf.Bytes()
-
-	// status
-	if w.Status == 0 {
-		w.Status = 200
+	if err := r.tpl.Execute(buf, name, data); err != nil {
+		return err
 	}
-
-	// ok
+	r.c.Res.Html(status, buf.Bytes())
 	return nil
 }
+
+//
+// for convinent
+//
+type Map map[string]interface{}
