@@ -1,7 +1,7 @@
 package uweb
 
 import (
-	"lib/memcache"
+	"github.com/bradfitz/gomemcache/memcache"
 
 	//"time"
 	//"errors"

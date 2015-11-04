@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"lib/config"
+	"github.com/robfig/config"
 )
 
 var (

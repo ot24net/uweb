@@ -13,7 +13,11 @@ const (
 
 // global ctrl values
 var (
+	// debug mode
 	DEBUG = true
+
+	// development environment
+	DEVELOPMENT = false
 )
 
 //

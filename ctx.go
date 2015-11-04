@@ -22,9 +22,9 @@ type Context struct {
 	Flash *Flash
 
 	// view
-	Locale   *Locale
-	Render   Render
-	
+	Locale *Locale
+	Render Render
+
 	// route
 	Redirect *Redirect
 }

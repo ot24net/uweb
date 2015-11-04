@@ -1,10 +1,10 @@
 package uweb
 
 import (
-	"log"
-	"fmt"
-	"net/http"
 	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
 )
 
 //
@@ -110,7 +110,7 @@ func (res *Response) Jsonp(status int, padding string, v interface{}) error {
 	w := res
 
 	// body
-	result, err := json.Marshal(v)
+	result, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
 		return err
 	}

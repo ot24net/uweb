@@ -1,13 +1,14 @@
 package uweb
 
 import (
-	"net/http"
 	"crypto/rand"
 	"crypto/sha1"
 	"crypto/subtle"
 	"encoding/base64"
 	"errors"
 	"io"
+	"log"
+	"net/http"
 	"strings"
 )
 
@@ -50,24 +51,27 @@ func NewCsrf() *Csrf {
 func (cf *Csrf) Handle(c *Context) int {
 	// lazily creates a csrf token
 	// create one per session
-	secret := c.Sess.Get(CSRF_SECRET_KEY)
-	if len(secret) == 0 {
+	secret, token := c.Sess.Get(CSRF_SECRET_KEY), c.Sess.Get(CSRF_TOKEN_KEY)
+	if len(secret) == 0 || len(token) == 0 {
 		// create new token
 		secret = cf.genSecret(CSRF_SECRET_LEN)
 		salt := cf.genSalt(CSRF_SALT_LEN)
-		token := cf.genToken(salt, secret)
+		token = cf.genToken(salt, secret)
 
 		// save in session
 		c.Sess.Set(CSRF_SECRET_KEY, secret)
 		c.Sess.Set(CSRF_TOKEN_KEY, token)
+		if DEBUG {
+			log.Println(LOG_TAG, "Csrf: token", token)
+		}
 
 		// for angular.js
 		http.SetCookie(c.Res, &http.Cookie{
-			Name: "XSRF-TOKEN",
-			Value: token,
-			Path: "/",
+			Name:     "XSRF-TOKEN",
+			Value:    token,
+			Path:     "/",
 			HttpOnly: false,
-			MaxAge: 365 * 24 * 3600,
+			MaxAge:   365 * 24 * 3600,
 		})
 	}
 
@@ -77,23 +81,23 @@ func (cf *Csrf) Handle(c *Context) int {
 		return NEXT_CONTINUE
 	}
 
-	// parse token
-	token := c.Req.FormValue("_csrf")
-	if len(token) == 0 {
+	// parse reqToken
+	reqToken := c.Req.FormValue("_csrf")
+	if len(reqToken) == 0 {
 		h := c.Req.Header
-		token = h.Get("X-CSRF-Token")
-		if len(token) == 0 {
-			token = h.Get("X-XSRF-Token")
+		reqToken = h.Get("X-CSRF-ReqToken")
+		if len(reqToken) == 0 {
+			reqToken = h.Get("X-XSRF-ReqToken")
 		}
 	}
-	if len(token) == 0 {
+	if len(reqToken) == 0 {
 		c.Res.Status = 400
 		c.Res.Err = errors.New("Csrf: no csrf")
 		return NEXT_BREAK
 	}
 
 	// verify
-	if err := cf.verify(secret, token); err != nil {
+	if err := cf.verify(secret, reqToken); err != nil {
 		c.Res.Status = 403
 		c.Res.Err = err
 		return NEXT_BREAK
