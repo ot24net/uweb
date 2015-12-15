@@ -95,7 +95,7 @@ func init() {
 }
 
 //
-// web/src/model/demo1/noop.go
+// src/webapp/model/demo1/noop.go
 //
 package demo1
 
@@ -104,7 +104,7 @@ func Noop(userId int) {
 }
 
 //
-// web/src/public/html/demo1/login.html
+// src/webapp/public/html/demo1/login.html
 //
 {{define "demo1/login"}}
 
