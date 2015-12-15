@@ -36,6 +36,11 @@ func Put(p string, h HttpHandler) {
 	defaultRouter.Put(p, h)
 }
 
+// PATCH
+func Patch(p string, h HttpHandler) {
+	defaultRouter.Patch(p, h)
+}
+
 // DELETE
 func Del(p string, h HttpHandler) {
 	defaultRouter.Del(p, h)
@@ -263,6 +268,7 @@ func (rt *RTree) Match(p string) (map[string]string, HttpHandler) {
 type Router struct {
 	gets  *RTree
 	puts  *RTree
+	patchs  *RTree
 	posts *RTree
 	dels  *RTree
 	opts  *RTree
@@ -274,6 +280,7 @@ func NewRouter() *Router {
 	return &Router{
 		gets:  NewRTree(),
 		puts:  NewRTree(),
+		patchs:  NewRTree(),
 		posts: NewRTree(),
 		dels:  NewRTree(),
 		opts:  NewRTree(),
@@ -291,6 +298,8 @@ func (r *Router) treeByMethod(method string) *RTree {
 		t = r.posts
 	case "PUT":
 		t = r.puts
+	case "PATCH":
+		t = r.patchs
 	case "DELETE":
 		t = r.dels
 	case "OPTIONS":
@@ -357,6 +366,10 @@ func (r *Router) Post(p string, h HttpHandler) {
 
 func (r *Router) Put(p string, h HttpHandler) {
 	r.addHandler("PUT", p, h)
+}
+
+func (r *Router) Patch(p string, h HttpHandler) {
+	r.addHandler("PATCH", p, h)
 }
 
 func (r *Router) Del(p string, h HttpHandler) {
