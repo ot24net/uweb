@@ -18,5 +18,9 @@ const (
 // is not as dynamic as js or ruby.
 //
 type Middleware interface {
+	// for debug
+	Name() string
+
+	// handle
 	Handle(*Context) int
 }

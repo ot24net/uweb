@@ -1,9 +1,5 @@
 package uweb
 
-import (
-	"log"
-)
-
 //
 // Per request context
 //
@@ -62,9 +58,9 @@ func (c *Context) Next() int {
 		if c.cursor >= s {
 			break
 		}
-		ret = c.app.mws[c.cursor].Handle(c)
+		md := c.app.mws[c.cursor]
+		ret = md.Handle(c)
 		if ret != NEXT_CONTINUE {
-			log.Println(LOG_TAG, "Context: break at cursor", c.cursor)
 			c.cursor = s
 		}
 	}

@@ -47,6 +47,10 @@ func NewLogger(level int) *Logger {
 	}
 }
 
+func (lg *Logger) Name() string {
+	return "log"
+}
+
 // @impl Middleware
 func (lg *Logger) Handle(c *Context) int {
 	if lg.level == LOG_LEVEL_0 {

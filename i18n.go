@@ -65,6 +65,10 @@ type I18n struct {
 	cfgs   map[string]*config.Config // all locales, need reboot if changed
 }
 
+func (i *I18n) Name() string {
+	return "i18n"
+}
+
 // @impl Middleware
 func (i *I18n) Handle(c *Context) int {
 	code := ""

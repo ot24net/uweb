@@ -39,6 +39,10 @@ func NewSessMan(expire int) (*SessMan, error) {
 	}, nil
 }
 
+func (m *SessMan) Name() string {
+	return "session"
+}
+
 // @impl Middleware
 func (m *SessMan) Handle(c *Context) int {
 	// read sid from cookie

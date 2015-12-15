@@ -47,6 +47,10 @@ func NewCsrf() *Csrf {
 	return new(Csrf)
 }
 
+func (cf *Csrf) Name() string {
+	return "csrf"
+}
+
 // Impl Middleware
 func (cf *Csrf) Handle(c *Context) int {
 	// lazily creates a csrf token

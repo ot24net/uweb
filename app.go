@@ -18,6 +18,9 @@ var (
 
 	// development environment
 	DEVELOPMENT = false
+
+	// Maxium middlewares
+	MAX_MIDDLEWARE = 32
 )
 
 //
@@ -45,6 +48,9 @@ func NewApp() *Application {
 
 // Add one middleware
 func (a *Application) Use(m Middleware) {
+	if len(a.mws) > MAX_MIDDLEWARE {
+		panic("too many middlewares")
+	}
 	a.mws = append(a.mws, m)
 }
 

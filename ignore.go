@@ -30,6 +30,10 @@ func (ig *Ignore) Path(p string) {
 	ig.paths[p] = true
 }
 
+func (ig *Ignore) Name() string {
+	return "ignore"
+}
+
 // Check request path, if ignored, return 200 ok and ignored text info
 // @impl Middleware
 func (ig *Ignore) Handle(c *Context) int {

@@ -48,6 +48,10 @@ func NewGzip() *Gzip {
 	return g
 }
 
+func (g *Gzip) Name() string {
+	return "compress"
+}
+
 // @impl Middleware
 func (g *Gzip) Handle(c *Context) int {
 	// bypass some files

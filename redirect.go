@@ -20,6 +20,10 @@ type Redirector struct {
 	// empy
 }
 
+func (r *Redirector) Name() string {
+	return "redirect"
+}
+
 // @impl Middleware
 func (r *Redirector) Handle(c *Context) int {
 	c.Redirect = &Redirect{c}

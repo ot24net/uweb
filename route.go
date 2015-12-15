@@ -133,6 +133,10 @@ func (n *RNode) merge(ps []string, handler HttpHandler) (bool, error) {
 			nodes[i] = &RNode{
 				pattern: p,
 			}
+			if len(p) == 0 {
+				nodes[i].Dump("")
+				panic("pattern should not empty")
+			}
 			if i > 0 {
 				parent := nodes[i-1]
 				parent.child = append(parent.child, nodes[i])
@@ -297,6 +301,14 @@ func (r *Router) treeByMethod(method string) *RTree {
 	return t
 }
 
+var (
+	ErrRouteNotFound = errors.New("Router: not found")
+)
+
+func (r *Router) Name() string {
+	return "route"
+}
+
 // Middleware impl
 func (r *Router) Handle(c *Context) int {
 	// t
@@ -311,7 +323,7 @@ func (r *Router) Handle(c *Context) int {
 	p, h := t.Match(c.Req.URL.Path)
 	if h == nil {
 		c.Res.Status = 404
-		c.Res.Err = errors.New("Router: not found")
+		c.Res.Err = ErrRouteNotFound
 		return NEXT_BREAK
 	}
 

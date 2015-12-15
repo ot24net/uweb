@@ -39,6 +39,10 @@ type Cors struct {
 	opts map[string]string
 }
 
+func (co *Cors) Name() string {
+	return "cors"
+}
+
 // @impl Middleware
 //
 // see koa's cors:

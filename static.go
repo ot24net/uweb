@@ -588,6 +588,10 @@ func NewStatic(prefix, root string) *Static {
 	}
 }
 
+func (s *Static) Name() string {
+	return "static"
+}
+
 // @impl Middleware
 func (s *Static) Handle(c *Context) int {
 	p := c.Req.URL.Path

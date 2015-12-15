@@ -3,7 +3,6 @@ package uweb
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -29,12 +28,7 @@ func NewResponse(w http.ResponseWriter) *Response {
 func (res *Response) End(req *Request) error {
 	// if error, ignore others
 	if res.Err != nil {
-		if DEBUG {
-			http.Error(res, res.Err.Error(), res.Status)
-		} else {
-			log.Println(LOG_TAG, "Response: End err", res.Err)
-			http.Error(res, "some error happens", res.Status)
-		}
+		http.Error(res, res.Err.Error(), res.Status)
 		return nil
 	}
 

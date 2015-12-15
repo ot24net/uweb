@@ -58,6 +58,10 @@ func NewMemCache(dsn string) (*MemCache, error) {
 	}, nil
 }
 
+func (m *MemCache) Name() string {
+	return "cache"
+}
+
 // @impl Middleware
 func (m *MemCache) Handle(c *Context) int {
 	c.Cache = m

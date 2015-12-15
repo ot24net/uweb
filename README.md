@@ -6,105 +6,122 @@ It borrows many ideas from Koa.js, Gin, Playframework, etc.
 ## example
 ```
 //
-// src/app/main.go
+// webapp/src/app/main.go
 // 
 package main
 
 import (
 	"github.com/ot24net/uweb"
 	
-	_ "ctrls/account"
-    _ "models/account"
+	_ "webapp/ctrl"
 )
 
 func main() {
+	// uweb
+	uweb.DEBUG = true
+	uweb.DEVELOPMENT = true // will reload html template on each access
+	uweb.SID_COOKIE_KEY = "_uweb_sid"
+
 	// app
 	app := uweb.NewApp()
-	
-	// Ignore some path
-	app.Use(uweb.MdIgnore([]string{"/haproxy"}))
-	
-	// Response favicon 
-	app.Use(uweb.MdFavicon("../../pub/img/favicon.ico"))
-	
-	// Serve static files, "/pub" is path prefix, and "../../pub" is file directory
-	app.Use(uweb.MdStatic("/pub", "../../pub")) // before compress
-	
-	// Compress use gzip, currently cannot work with MdSatic	
+
+	// hacheck
+	app.Use(uweb.MdIgnore([]string{"/hacheck"}))
+
+	// static
+	app.Use(uweb.MdFavicon("../public/img/favicon.ico"))
+	app.Use(uweb.MdStatic("/public", "../public")) // before compress
+
+	// compress
 	app.Use(uweb.MdCompress())
-	
+
 	// log
 	app.Use(uweb.MdLogger(uweb.LOG_LEVEL_2))
-	
-	// Cache use memcache
-	app.Use(uweb.MdCache("memcache", "127.0.0.1:11211"))
-	
-	// Session depends on cache
-	app.Use(uweb.MdSession(3600*12))
-	
-	// Flash depends on session
+
+	// 这里cache对应的数据要被各个web服务共享
+	// 创建一个域名为newding.com的session ID的
+	app.Use(uweb.MdCache("memcache", "localhost:11211"))
+	app.Use(uweb.MdSession(3600 * 24 * 14))
 	app.Use(uweb.MdFlash())
-	
-	// Csrf depends on session, and get the Csrf token from session with key: CSRF_TOKEN_KEY
+
+	// csrf
 	app.Use(uweb.MdCsrf())
-	
-	// Html render
-	app.Use(uweb.MdRender("../../pub/html", ".html"))
-	
-	// Cors
-	app.Use(uweb.MdCors(uweb.DefaultCors))
-	
-	// I18n, depends on session if detect is true
-	app.Use(uweb.MdI18n("../../pub/locale", "zh_cn", false))
-	
-	// if you want more method, change route.go
+
+	// render
+	app.Use(uweb.MdRender("../public/html", ".html"))
+
+	// redirect
+	app.Use(uweb.MdRedirect())
+
+	// error page
+	app.Use(uweb.MdErrPage(uweb.Map{
+		"404_home_url": "http://goto_myhost.com",
+	}))
+
+	// router
 	app.Use(uweb.MdRouter())
-	
-	// listen address
-	app.Listen(":9099")
+
+	// listen
+	app.Listen(":9090")
 }
 
 //
-// src/ctrls/account/login.go 
+// webapp/src/ctrl/index.go
 //
-package account
+package ctrl
+
+import (
+	   _ "webapp/ctrl/demo1"
+	   _ "webapp/ctrl/demo2"
+)
+
+//
+// webapp/src/ctrl/demo1/demo1.go
+//
+package demo1
 
 import (
 	   "github.com/ot24net/uweb"
-	   "models/account"
+	   "webapp/model/demo1"
 )
 
 func init() {
 	 // simple get
-	 uweb.Get("/account/login", func(c *uweb.Context) {
-	 	 content := map[string]string {
-	 	 	  "key": "value"
-		 }		  	  
-	 	 c.Render.Html("account/login", content)
+	 uweb.Get("/demo1/login", func(c *uweb.Context) {
+	     demo1.Noop(123)
+	 	 c.Render.Html(200, "demo1/login", uweb.Map{
+		     "title": "hello demo1",
+		 })
 	 })	
-	 
-	 // post
-	 uweb.Post("/api/login/", func(c *uweb.Context) {
-	 	c.Render.Json("", "")
-	 })
-	 
-	 // not support regexp match
-	 uweb.Put("/account/:user_id", func (c *uweb.Context) {
-	     userId := c.Req.Params["user_id"]
-	 	 println(userId)
-	 	 account.Noop(userId)
-	 	 c.Render.Plain("success")
-     })
 }
 
 //
-// src/models/account/noop.go
+// web/src/model/demo1/noop.go
 //
-package account
+package demo1
 
 func Noop(userId int) {
 	// do nothing
 }
+
+//
+// web/src/public/html/demo1/login.html
+//
+{{define "demo1/login"}}
+
+<!doctype html>
+<html>
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>{{.title}}</title>
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+  </head>
+  <body>
+      uweb test
+  </body>
+</html>
+
+{{end}}
 
 ```
 
@@ -114,3 +131,7 @@ There is middleware system, but if want to extend, change the source code.
 ## Performance
 Route middleware is rather fast, especially for long path, as it stores paths in tree. 
 Session middleware depends on cache, which will slow down the benchmark.
+
+## Who is using it
+newding.com use it in several WeChat based web apps;
+ot24.net use it in its internal admin platform;

@@ -115,6 +115,10 @@ func (t *Template) loadTpls() error {
 	return nil
 }
 
+func (t *Template) Name() string {
+	return "render"
+}
+
 // @impl Midelleware
 func (t *Template) Handle(c *Context) int {
 	c.Render = &tplRender{c, t}

@@ -15,6 +15,10 @@ type Flashing struct {
 	// empty
 }
 
+func (f *Flashing) Name() string {
+	return "flash"
+}
+
 // @impl Middleware
 func (f *Flashing) Handle(c *Context) int {
 	c.Flash = &Flash{c.Sess}

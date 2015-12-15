@@ -37,6 +37,10 @@ func NewFavicon(p string) (*Favicon, error) {
 	}, nil
 }
 
+func (f *Favicon) Name() string {
+	return "favicon"
+}
+
 // Reponse favicon data if is such req
 // @impl Middleware
 func (f *Favicon) Handle(c *Context) int {
