@@ -6,7 +6,7 @@ It borrows many ideas from Koa.js, Gin, Playframework, etc.
 ## example
 ```
 //
-// webapp/src/app/main.go
+// src/webapp/app/main.go
 // 
 package main
 
@@ -65,17 +65,17 @@ func main() {
 }
 
 //
-// webapp/src/ctrl/index.go
+// src/webapp/ctrl/index.go
 //
 package ctrl
 
 import (
 	   _ "webapp/ctrl/demo1"
-	   _ "webapp/ctrl/demo2"
+	   // import other module
 )
 
 //
-// webapp/src/ctrl/demo1/demo1.go
+// src/webapp/ctrl/demo1/demo1.go
 //
 package demo1
 
