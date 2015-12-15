@@ -38,8 +38,7 @@ func main() {
 	// log
 	app.Use(uweb.MdLogger(uweb.LOG_LEVEL_2))
 
-	// 这里cache对应的数据要被各个web服务共享
-	// 创建一个域名为newding.com的session ID的
+	// session
 	app.Use(uweb.MdCache("memcache", "localhost:11211"))
 	app.Use(uweb.MdSession(3600 * 24 * 14))
 	app.Use(uweb.MdFlash())
